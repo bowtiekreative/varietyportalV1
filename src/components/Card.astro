@@ -20,7 +20,7 @@ interface Props {
 }
 const { icon, title, quoted = false, meta, body, footnote, href, cta, class: cls = '' } = Astro.props;
 ---
-<article class:list={['card', href && 'card--link', cls]} data-laka-card>
+<article class:list={['card', href && 'card--link', cls]} data-laka-component="card" data-laka-card>
   {icon && <span class="icon-frame"><Icon name={icon} /></span>}
   <h3 class="h4">{quoted ? <>&ldquo;{title}&rdquo;</> : title}</h3>
   {meta && <p class="micro">{meta}</p>}

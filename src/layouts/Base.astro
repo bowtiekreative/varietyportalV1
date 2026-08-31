@@ -30,7 +30,7 @@ const { title, description, noindex, jsonLd } = Astro.props;
         It is namespaced (--rp-*, .laka-*), so local styles that follow it never
         collide; our own :root block repeats the same values as a fallback if
         the CDN is unreachable. */}
-    <link rel="stylesheet" href="https://designsystem.bowtiekreative.com/dist/laka.css" />
+    <link rel="stylesheet" href="https://designsystem.bowtiekreative.com/dist/laka.css?v=1.0.0" />
     <Seo title={title} description={description} noindex={noindex} jsonLd={jsonLd} />
     <Analytics />
   </head>
