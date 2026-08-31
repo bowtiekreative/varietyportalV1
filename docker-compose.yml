@@ -45,6 +45,32 @@ services:
       - traefik.http.middlewares.vp-secheaders.headers.customResponseHeaders.Permissions-Policy=accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()
       - "traefik.http.middlewares.vp-secheaders.headers.customResponseHeaders.Content-Security-Policy=default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data: https://designsystem.bowtiekreative.com; font-src 'self' data:; style-src 'self' 'unsafe-inline' https://designsystem.bowtiekreative.com; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com; manifest-src 'self'; upgrade-insecure-requests"
 
+  # Daily nurture sender. Lives here rather than in the Dokploy UI so the
+  # schedule is versioned with the code that it drives. It reaches the app over
+  # the stack-private network, and the JSON content-type is required — without a
+  # content-type Astro's CSRF middleware rejects the POST as a cross-site form.
+  vp-cron:
+    image: alpine:3.20
+    restart: unless-stopped
+    depends_on:
+      - vp-web
+    environment:
+      CRON_SECRET: ${CRON_SECRET:-}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        apk add --no-cache curl >/dev/null 2>&1
+        cat > /usr/local/bin/nurture <<'SH'
+        #!/bin/sh
+        curl -fsS -m 60 -X POST http://vp-web:4321/api/nurture           -H 'Content-Type: application/json'           -H "Authorization: Bearer $CRON_SECRET"
+        SH
+        chmod +x /usr/local/bin/nurture
+        echo '0 14 * * * /usr/local/bin/nurture >> /var/log/nurture.log 2>&1' > /etc/crontabs/root
+        touch /var/log/nurture.log
+        crond -f -l 8
+    networks:
+      - default
+
   # Stack-private only: no Traefik route, so it never joins dokploy-network
   # and its name cannot collide with another project's database.
   vp-mongo:

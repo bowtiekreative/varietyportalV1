@@ -15,6 +15,7 @@ routes work to them, or away from all of them when that is the honest answer.
 | Framework | Astro 5 (`output: 'static'` + Node adapter) | Marketing routes prerender to HTML for SEO; only the form handlers and result pages are server-rendered. No SPA shell for crawlers to miss. |
 | Runtime | Node 22 | Single container, no separate API service. |
 | Store | MongoDB 7 | Scans, bookings and nurture state. Stack-private — no Traefik route. |
+| Cron | alpine + crond | Daily nurture send, defined in the compose file. |
 | Email | Emailit v2 | Confirmations, internal alerts and the nurture sequence. |
 | Design | [LAKA Design System](https://api.designsystem.bowtiekreative.com) v4.3 | Authority, not suggestion. `POST /v1/validate` returns **CLEAR** on all three gates. |
 
@@ -89,7 +90,12 @@ the domain in Emailit first, then change the variable.
 
 ## The nurture cron
 
-`POST /api/nurture` sends whatever is due, one email per contact per run.
+A `vp-cron` service in the compose stack calls the sender daily at 14:00 UTC.
+The schedule lives in `docker-compose.yml` rather than the Dokploy UI so it is
+versioned with the code it drives.
+
+To run it by hand, `POST /api/nurture` sends whatever is due, one email per
+contact per run.
 
 ```bash
 curl -X POST https://varietyportal.com/api/nurture \
@@ -129,3 +135,21 @@ curl "https://api.designsystem.bowtiekreative.com/v1/contrast?foreground=%23XXXX
 The rule set grows over time — re-resolve rather than trusting this README.
 Accent `#3F6EE9` is 4.38:1 on canvas and is **never** used for text below 24px
 normal / 18.66px bold. Text on accent is `#FFFFFF`, never `#F5F7FA`.
+
+## Known audit findings
+
+`POST /v1/audit/site` reports two categories that are not defects in this repo:
+
+- **`design-system.asset-unversioned` (block, ×11).** The audit wants shared CSS
+  at a content-hashed immutable URL. The design system publishes `laka.css` at
+  an unversioned path with only an etag, so a hashed URL has to come from that
+  CDN. Removing the embed to clear it just re-triggers
+  `design-system.shared-css-missing`, which is also blocking — the two rules
+  cannot both be satisfied from here.
+- **`analytics.missing` / `analytics.form-events` (warn).** Deliberate: no GA4
+  property has been supplied, and inventing a measurement id would violate
+  `seo.invented-facts`. Set `PUBLIC_GA_MEASUREMENT_ID` to a real `G-XXXXXXX`
+  and rebuild; the consent-gated tag and the named funnel events are already
+  wired and clear both findings.
+
+`POST /v1/validate` returns **CLEAR** on all three gates.
