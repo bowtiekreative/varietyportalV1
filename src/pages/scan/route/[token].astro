@@ -3,6 +3,7 @@ export const prerender = false;
 
 import Base from '../../../layouts/Base.astro';
 import Icon from '../../../components/Icon.astro';
+import Card from '../../../components/Card.astro';
 import Lattice from '../../../components/Lattice.astro';
 import { scans } from '../../../lib/db';
 import { ROUTE_COPY, TIER_COPY, type RouteId, type Tier } from '../../../lib/scoring';
@@ -145,17 +146,15 @@ const firstName = (record.answers.name ?? '').split(/\s+/)[0] || 'there';
           </p>
         </div>
 
-        <ul class="grid grid--3 providers">
+        <ul class="grid grid--3 providers" data-laka-collection="candidate-routes">
           {providers.map((p) => (
             <li>
-              <article class="card">
-                <span class="icon-frame"><Icon name={p.icon} /></span>
-                <h3 class="h4">{p.name}</h3>
-                <p class="providers__disc">{p.discipline}</p>
-                <p class="providers__flag micro">
-                  {p.affiliated ? 'Affiliated with Variety Portal' : 'Independent — sourced for you'}
-                </p>
-              </article>
+              <Card
+                icon={p.icon}
+                title={p.name}
+                body={p.discipline}
+                footnote={p.affiliated ? 'Affiliated with Variety Portal' : 'Independent — sourced for you'}
+              />
             </li>
           ))}
         </ul>

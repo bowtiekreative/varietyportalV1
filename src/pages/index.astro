@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
+import Card from '../components/Card.astro';
 import Lattice from '../components/Lattice.astro';
 import RoutingField from '../components/RoutingField.astro';
 import { SITE } from '../lib/site';
@@ -201,14 +202,10 @@ const jsonLd = [
         <h2 class="h2">The sentence you would use. The constraints underneath it.</h2>
       </div>
 
-      <ul class="grid grid--3 symptoms">
+      <ul class="grid grid--3 symptoms" data-laka-collection="symptoms">
         {symptoms.map((s) => (
           <li data-reveal>
-            <article class="card">
-              <span class="icon-frame"><Icon name={s.icon} /></span>
-              <h3 class="h4 symptoms__quote">&ldquo;{s.quote}&rdquo;</h3>
-              <p>{s.body}</p>
-            </article>
+            <Card icon={s.icon} title={s.quote} quoted body={s.body} />
           </li>
         ))}
       </ul>
@@ -223,19 +220,10 @@ const jsonLd = [
         <h2 class="h2">Start small. Escalate only when the evidence says to.</h2>
       </div>
 
-      <ul class="grid grid--4">
+      <ul class="grid grid--4" data-laka-collection="offers">
         {offers.map((o) => (
           <li data-reveal>
-            <article class="card card--link offer">
-              <span class="icon-frame"><Icon name={o.icon} /></span>
-              <h3 class="h4">{o.name}</h3>
-              <p class="micro">{o.price}</p>
-              <p class="offer__body">{o.body}</p>
-              <a class="offer__cta" href={o.href}>
-                {o.cta}
-                <Icon name="arrow" size={16} class="arrow" />
-              </a>
-            </article>
+            <Card icon={o.icon} title={o.name} meta={o.price} body={o.body} href={o.href} cta={o.cta} />
           </li>
         ))}
       </ul>

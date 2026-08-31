@@ -1,0 +1,52 @@
+---
+/**
+ * The single card contract. Every repeated card on the site renders through
+ * this component so the collection has one shared definition rather than
+ * copies of the same markup (design-system.card-contract).
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  icon?: string;
+  title: string;
+  /** Rendered as a quotation — used for the symptom cards. */
+  quoted?: boolean;
+  meta?: string;
+  body?: string;
+  footnote?: string;
+  href?: string;
+  cta?: string;
+  class?: string;
+}
+const { icon, title, quoted = false, meta, body, footnote, href, cta, class: cls = '' } = Astro.props;
+---
+<article class:list={['card', href && 'card--link', cls]} data-laka-card>
+  {icon && <span class="icon-frame"><Icon name={icon} /></span>}
+  <h3 class="h4">{quoted ? <>&ldquo;{title}&rdquo;</> : title}</h3>
+  {meta && <p class="micro">{meta}</p>}
+  {body && <p class="card__body">{body}</p>}
+  <slot />
+  {footnote && <p class="card__foot micro">{footnote}</p>}
+  {href && cta && (
+    <a class="card__cta" href={href}>
+      {cta}
+      <Icon name="arrow" size={16} class="arrow" />
+    </a>
+  )}
+</article>
+
+<style>
+  .card__body { flex: 1; font-size: 0.9375rem; }
+  .card__foot { margin-top: auto; padding-top: var(--space-4); border-top: 1px solid var(--rp-hairline); }
+  .card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: #8AA6F2;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    min-height: 44px;
+  }
+  .card__cta:hover { text-decoration: underline; }
+</style>

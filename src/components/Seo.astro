@@ -10,9 +10,40 @@ interface Props {
 }
 const { title, description, noindex = false, jsonLd } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', SITE.url).href;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const canonical = new URL(path, SITE.url).href;
 const fullTitle = title.includes(SITE.name) ? title : `${title} | ${SITE.name}`;
-const blocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const extra = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+
+/* Every indexable route carries structured data describing content that is
+   actually visible on the page (rule seo.markup-visible). */
+const base: Record<string, unknown>[] = noindex
+  ? []
+  : [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: title,
+        description,
+        url: canonical,
+        isPartOf: { '@type': 'WebSite', name: SITE.name, url: SITE.url },
+        inLanguage: 'en',
+      },
+      ...(path === '/'
+        ? []
+        : [
+            {
+              '@context': 'https://schema.org',
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Home', item: SITE.url },
+                { '@type': 'ListItem', position: 2, name: title, item: canonical },
+              ],
+            },
+          ]),
+    ];
+
+const blocks = [...base, ...extra];
 ---
 <title>{fullTitle}</title>
 <meta name="description" content={description} />

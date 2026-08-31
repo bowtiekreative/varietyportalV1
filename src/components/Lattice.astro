@@ -18,13 +18,12 @@ for (let r = 0; r < rows; r++) {
 }
 ---
 <div class={`lattice lattice--${intensity} ${cls}`} aria-hidden="true">
-  <svg viewBox={`0 0 ${cols * 40} ${rows * 40}`} preserveAspectRatio="xMidYMid slice">
+  <svg viewBox={`0 0 ${cols * 40} ${rows * 40}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false" role="presentation">
     {cells.map((c) => (
       <rect
         x={c.x - 1.5} y={c.y - 1.5} width="3" height="3" rx="0.5"
         fill={c.lit ? '#3F6EE9' : '#F5F7FA'}
-        class={c.lit ? 'lattice__lit' : 'lattice__dot'}
-        style={`--i:${c.i}`}
+        class={c.lit ? `lattice__lit lattice__d${c.i % 8}` : 'lattice__dot'}
       />
     ))}
   </svg>
@@ -46,8 +45,17 @@ for (let r = 0; r < rows; r++) {
   .lattice__lit {
     opacity: 0.2;
     animation: lat-pulse 6s var(--ease-out) infinite;
-    animation-delay: calc(var(--i) * 23ms);
   }
+  /* Stagger comes from eight delay buckets rather than a per-node inline
+     style — 900 inline style attributes bypass the token layer. */
+  .lattice__d0 { animation-delay: 0ms; }
+  .lattice__d1 { animation-delay: 260ms; }
+  .lattice__d2 { animation-delay: 520ms; }
+  .lattice__d3 { animation-delay: 780ms; }
+  .lattice__d4 { animation-delay: 1040ms; }
+  .lattice__d5 { animation-delay: 1300ms; }
+  .lattice__d6 { animation-delay: 1560ms; }
+  .lattice__d7 { animation-delay: 1820ms; }
   @keyframes lat-pulse {
     0%, 100% { opacity: 0.16; }
     50% { opacity: 0.85; }

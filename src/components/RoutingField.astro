@@ -27,7 +27,6 @@ const candidates = Array.from({ length: COUNT }, (_, i) => {
   const endY = originY + spread * 34;
   return {
     d: `M ${originX} ${originY} C ${c1x} ${originY + spread * 24}, ${c2x} ${midY}, ${targetX} ${endY}`,
-    delay: (i * 70) % 1500,
     dim: 0.1 + (1 - Math.abs(spread)) * 0.12,
   };
 });
@@ -50,7 +49,7 @@ for (let r = 0; r < rows; r++) {
 }
 ---
 <div class="field" aria-hidden="true">
-  <svg viewBox={`0 0 ${W} ${H}`} class="field__svg" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox={`0 0 ${W} ${H}`} class="field__svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" role="presentation">
     <defs>
       <linearGradient id="rf-live" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0%" stop-color="#3F6EE9" stop-opacity="0" />
@@ -69,14 +68,14 @@ for (let r = 0; r < rows; r++) {
     <!-- the 216 possibility lattice -->
     <g class="field__lattice">
       {dots.map((p, i) => (
-        <circle cx={p.x} cy={p.y} r="1.5" fill="#F5F7FA" opacity={p.o} style={`--i:${i}`} />
+        <circle cx={p.x} cy={p.y} r="1.5" fill="#F5F7FA" opacity={p.o} class={`field__dot field__b${i % 6}`} />
       ))}
     </g>
 
     <!-- candidate paths -->
     <g fill="none" stroke-linecap="round">
-      {candidates.map((p) => (
-        <path d={p.d} stroke="#8AA6F2" stroke-width="1" opacity={p.dim} class="field__candidate" style={`--d:${p.delay}ms`} />
+      {candidates.map((p, i) => (
+        <path d={p.d} stroke="#8AA6F2" stroke-width="1" opacity={p.dim} class={`field__candidate field__c${i % 6}`} />
       ))}
     </g>
 
@@ -115,14 +114,25 @@ for (let r = 0; r < rows; r++) {
   .field { position: relative; width: 100%; }
   .field__svg { width: 100%; height: auto; overflow: visible; }
 
-  .field__lattice circle { animation: rf-breathe 7s var(--ease-out) infinite; animation-delay: calc(var(--i) * 17ms); }
+  .field__lattice circle { animation: rf-breathe 7s var(--ease-out) infinite; }
+  .field__b0 { animation-delay: 0ms; }
+  .field__b1 { animation-delay: 400ms; }
+  .field__b2 { animation-delay: 800ms; }
+  .field__b3 { animation-delay: 1200ms; }
+  .field__b4 { animation-delay: 1600ms; }
+  .field__b5 { animation-delay: 2000ms; }
   @keyframes rf-breathe { 0%, 100% { opacity: inherit; } 50% { opacity: 0.42; } }
 
   .field__candidate {
     stroke-dasharray: 4 7;
     animation: rf-drift 5.5s linear infinite;
-    animation-delay: var(--d);
   }
+  .field__c0 { animation-delay: 0ms; }
+  .field__c1 { animation-delay: 250ms; }
+  .field__c2 { animation-delay: 500ms; }
+  .field__c3 { animation-delay: 750ms; }
+  .field__c4 { animation-delay: 1000ms; }
+  .field__c5 { animation-delay: 1250ms; }
   @keyframes rf-drift { to { stroke-dashoffset: -110; } }
 
   .field__resolved {
@@ -158,6 +168,7 @@ for (let r = 0; r < rows; r++) {
   @media (prefers-reduced-motion: reduce) {
     .field__lattice circle,
     .field__candidate,
+    .field__dot,
     .field__ping { animation: none; }
     .field__resolved { stroke-dashoffset: 0; animation: none; }
     .field__glow { opacity: 1; animation: none; }

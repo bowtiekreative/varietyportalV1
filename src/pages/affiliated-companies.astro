@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
+import Card from '../components/Card.astro';
 import Lattice from '../components/Lattice.astro';
 import { PROVIDERS, DISCLOSURE } from '../lib/routes';
 
@@ -9,7 +10,7 @@ const external = PROVIDERS.filter((p) => !p.affiliated);
 ---
 <Base
   title="Affiliated Companies and Routing"
-  description="Variety Portal is the neutral front door to a portfolio of specialist companies. This is the full routing table, and the disclosure that applies to every recommendation."
+  description="The full constraint-to-provider routing table, and the disclosure that applies to every recommendation we make."
 >
   <section class="lead">
     <Lattice intensity="low" />
@@ -73,15 +74,10 @@ const external = PROVIDERS.filter((p) => !p.affiliated);
         <p class="micro eyebrow">The portfolio</p>
         <h2 class="h2">Nine affiliated specialists.</h2>
       </div>
-      <ul class="grid grid--3 portfolio">
+      <ul class="grid grid--3 portfolio" data-laka-collection="affiliated-companies">
         {affiliated.map((p) => (
           <li data-reveal>
-            <article class="card">
-              <span class="icon-frame"><Icon name={p.icon} /></span>
-              <h3 class="h4">{p.name}</h3>
-              <p class="portfolio__disc">{p.discipline}</p>
-              <p class="portfolio__flag micro">Affiliated with Variety Portal</p>
-            </article>
+            <Card icon={p.icon} title={p.name} body={p.discipline} footnote="Affiliated with Variety Portal" />
           </li>
         ))}
       </ul>
