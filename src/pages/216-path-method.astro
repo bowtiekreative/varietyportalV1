@@ -1,0 +1,197 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Lattice from '../components/Lattice.astro';
+import { INTERROGATIVES, MODIFIERS, SCALES, WORKED, TOTAL } from '../lib/matrix';
+
+const axes = [
+  { name: 'Interrogatives', icon: 'question', items: INTERROGATIVES, note: 'The journalistic vector — which question you are perturbing.' },
+  { name: 'Relational modifiers', icon: 'layers', items: MODIFIERS, note: 'The directional shift applied to that question.' },
+  { name: 'Quantitative scales', icon: 'scale', items: SCALES, note: 'How much of the system the reading applies to.' },
+];
+---
+<Base
+  title="The 216-Path Method"
+  description="Six interrogatives, six relational modifiers and six quantitative scales produce 216 functionally distinct ways to read a business problem — so no category of explanation gets skipped because nobody thought of it."
+>
+  <section class="lead">
+    <Lattice intensity="high" />
+    <div class="shell lead__inner">
+      <p class="micro eyebrow">The mechanism</p>
+      <h1 class="display">Six questions. Six shifts. Six scales.</h1>
+      <p class="lede">
+        Six interrogatives × six relational modifiers × six quantitative scales produce
+        <strong>{TOTAL} functionally distinct cells</strong>. No two cells ask the same question,
+        because every pair differs on at least one orthogonal axis.
+      </p>
+      <p class="lede">
+        That completeness is the whole point. The grid defeats confirmation bias by construction
+        rather than by discipline — you cannot skip a category of explanation because it did not
+        occur to you.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">The three axes</p>
+        <h2 class="h2">Every cell is a coordinate.</h2>
+      </div>
+
+      <div class="axes">
+        {axes.map((axis) => (
+          <section class="axis" data-reveal>
+            <header class="axis__head">
+              <span class="icon-frame"><Icon name={axis.icon} /></span>
+              <div>
+                <h3 class="h4">{axis.name}</h3>
+                <p class="axis__note">{axis.note}</p>
+              </div>
+            </header>
+            <dl class="dl axis__dl">
+              {axis.items.map((item) => (
+                <div>
+                  <dt>{item.label}</dt>
+                  <dd>{item.gloss}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">Worked readings</p>
+        <h2 class="h2">What a single cell actually does to a diagnosis.</h2>
+        <p class="lede">
+          Four coordinates, applied to symptoms we hear constantly. Each one turns a familiar
+          complaint into a different — and testable — explanation.
+        </p>
+      </div>
+
+      <div class="worked">
+        {WORKED.map((w) => (
+          <article class="worked__item" data-reveal>
+            <p class="worked__cell micro">{w.cell}</p>
+            <h3 class="h4">{w.symptom}</h3>
+            <dl class="worked__dl">
+              <div>
+                <dt>Direct reading</dt>
+                <dd>{w.direct}</dd>
+              </div>
+              <div>
+                <dt>Cell reading</dt>
+                <dd>{w.reading}</dd>
+              </div>
+              <div>
+                <dt>What would test it</dt>
+                <dd>{w.test}</dd>
+              </div>
+            </dl>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="split">
+        <div class="section-head" data-reveal>
+          <p class="micro eyebrow">Triage</p>
+          <h2 class="h2">You will not be handed 216 things to do.</h2>
+        </div>
+        <ol class="steps" data-reveal>
+          <li>
+            <h3 class="h4 step-title">Generate mechanically</h3>
+            <p>All {TOTAL} cells, without filtering. Cheap to produce, and the completeness is the point.</p>
+          </li>
+          <li>
+            <h3 class="h4 step-title">Kill fast</h3>
+            <p>Most cells die instantly against facts you already have. A killed cell is documented negative space — it is what protects the recommendation later.</p>
+          </li>
+          <li>
+            <h3 class="h4 step-title">Score the survivors</h3>
+            <p>Would this change the decision, and is it testable with evidence you can actually obtain? Both must be true.</p>
+          </li>
+          <li>
+            <h3 class="h4 step-title">Write a test for each</h3>
+            <p>A hypothesis without a test is a rumour. Every surviving cell names the specific record, dataset or conversation that would confirm or kill it.</p>
+          </li>
+          <li>
+            <h3 class="h4 step-title">Chase the top few</h3>
+            <p>Five to eight, no more. The output is a recommended first move, not a backlog.</p>
+          </li>
+        </ol>
+      </div>
+
+      <p class="note method__note" data-reveal>
+        The engine expands the possibility space. Human judgment reviews evidence, feasibility, risk
+        and context. It is not a fully automated system and we do not present it as one.
+      </p>
+    </div>
+  </section>
+
+  <section class="section center">
+    <div class="shell">
+      <h2 class="h2" data-reveal>Bring a symptom and see which cells survive.</h2>
+      <p class="btn-row method__cta" data-reveal>
+        <a class="btn btn--primary btn--lg" href="/scan" data-event="scan_start">
+          Start the Problem Route Scan
+          <Icon name="arrow" size={18} class="arrow" />
+        </a>
+        <a class="btn btn--ghost btn--lg" href="/assessment">See the assessment</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lead { position: relative; overflow: hidden; padding-block: var(--space-10) var(--space-9); }
+  .lead__inner { position: relative; }
+  .lead__inner > * + * { margin-top: var(--space-5); }
+  .lead h1 { max-width: 14ch; }
+
+  .axes { margin-top: var(--space-9); display: grid; gap: var(--space-9); }
+  @media (min-width: 1040px) { .axes { grid-template-columns: repeat(3, 1fr); gap: var(--space-7); } }
+
+  .axis__head { display: grid; grid-template-columns: 44px 1fr; gap: var(--space-4); align-items: start; margin-bottom: var(--space-6); }
+  .axis__note { font-size: 0.875rem; color: var(--rp-muted); margin-top: var(--space-1); }
+  .axis__dl :global(dt) { font-size: 0.9375rem; }
+  .axis__dl :global(dd) { font-size: 0.875rem; }
+  @media (min-width: 1040px) { .axis__dl :global(> div) { grid-template-columns: 1fr; gap: var(--space-1); } }
+
+  .worked { margin-top: var(--space-9); display: grid; gap: var(--space-6); }
+  @media (min-width: 900px) { .worked { grid-template-columns: repeat(2, 1fr); gap: var(--space-7); } }
+
+  .worked__item {
+    background: var(--rp-surface);
+    border: 1px solid var(--rp-hairline);
+    border-radius: var(--radius-card);
+    padding: var(--space-7);
+  }
+  .worked__cell {
+    color: #8AA6F2;
+    padding: 6px var(--space-4);
+    border: 1px solid rgba(63, 110, 233, 0.34);
+    background: rgba(63, 110, 233, 0.12);
+    border-radius: var(--radius-pill);
+    display: inline-block;
+    margin-bottom: var(--space-5);
+  }
+  .worked__item h3 { margin-bottom: var(--space-5); }
+  .worked__dl { display: grid; gap: var(--space-4); margin: 0; }
+  .worked__dl :global(dt) { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rp-muted); margin-bottom: var(--space-1); }
+  .worked__dl :global(dd) { margin: 0; font-size: 0.9375rem; }
+
+  .split { display: grid; gap: var(--space-8); }
+  @media (min-width: 960px) { .split { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: var(--space-10); align-items: start; } }
+
+  .method__note { margin-top: var(--space-9); }
+  .method__cta { justify-content: center; margin-top: var(--space-7); }
+</style>

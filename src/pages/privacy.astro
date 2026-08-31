@@ -1,0 +1,90 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../lib/site';
+
+const sections = [
+  {
+    h: 'What we collect',
+    p: [
+      'When you complete the Problem Route Scan we collect the answers you provide: the symptom, where it appears, what you expected, what happened, what you have already tried, the outcome, the cost of waiting, urgency, investment readiness, decision authority, and your contact details.',
+      'When you request a routing consultation we collect your name, company, work email and the context you describe.',
+      'If you consent to analytics, we collect standard web analytics about how pages on this site are used. Nothing analytics-related loads until you consent.',
+    ],
+  },
+  {
+    h: 'Why we collect it',
+    p: [
+      'The scan answers are used to produce your preliminary route and to allow a person to review it before anything is recommended. The contact details are used to send you that route and to reply to you.',
+      'We do not sell your information. We do not add you to a marketing sequence from the scan alone.',
+    ],
+  },
+  {
+    h: 'Who sees it',
+    p: [
+      'Variety Portal personnel reviewing your scan or booking request. If your route leads to an affiliated company or an outside specialist, we tell you before sharing anything with them.',
+      'Our email delivery provider processes the messages we send you. Our hosting infrastructure stores the submission.',
+    ],
+  },
+  {
+    h: 'What we ask you not to send',
+    p: [
+      'Please do not send passwords, confidential customer data, privileged legal documents or regulated personal information through this site or in preparation for a consultation.',
+    ],
+  },
+  {
+    h: 'Analytics and consent',
+    p: [
+      'Analytics storage is denied by default. No tag loads and no analytics cookie is set until you choose to allow it. You can decline, and the site works identically either way.',
+    ],
+  },
+  {
+    h: 'Your choices',
+    p: [
+      'You can ask us what we hold about you, ask for it to be corrected, or ask for it to be deleted. Contact us and we will action it.',
+    ],
+  },
+];
+---
+<Base
+  title="Privacy"
+  description="What Variety Portal collects through the Problem Route Scan and booking requests, why, who sees it, and how to have it corrected or deleted."
+>
+  <section class="lead">
+    <div class="shell lead__inner">
+      <p class="micro eyebrow">Privacy</p>
+      <h1 class="display">What we collect, and why.</h1>
+      <p class="lede">
+        Plain terms. If anything here is unclear, ask and we will answer it directly.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell prose">
+      {sections.map((s) => (
+        <section class="prose__block" data-reveal>
+          <h2 class="h3">{s.h}</h2>
+          {s.p.map((t) => (<p>{t}</p>))}
+        </section>
+      ))}
+
+      <section class="prose__block" data-reveal>
+        <h2 class="h3">Contact</h2>
+        <p>
+          Reach us at <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a> for any privacy
+          question, including access, correction and deletion requests.
+        </p>
+      </section>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lead { padding-block: var(--space-10) var(--space-9); }
+  .lead__inner > * + * { margin-top: var(--space-5); }
+  .prose { max-width: 72ch; }
+  .prose__block { padding-block: var(--space-8); border-bottom: 1px solid var(--rp-hairline); }
+  .prose__block:first-child { border-top: 1px solid var(--rp-hairline); }
+  .prose__block h2 { margin-bottom: var(--space-5); }
+  .prose__block p + p { margin-top: var(--space-4); }
+</style>

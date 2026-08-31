@@ -1,0 +1,86 @@
+---
+import { SITE, BRAND, MENU } from '../lib/site';
+import { DISCLOSURE } from '../lib/routes';
+
+const year = new Date().getFullYear();
+---
+<footer class="foot">
+  <div class="shell shell--wide">
+    <div class="foot__top">
+      <div class="foot__brand">
+        <img src={BRAND.sealDark} alt="" width="40" height="40" loading="lazy" class="foot__seal" />
+        <p class="h4 foot__tag">{SITE.tagline}</p>
+        <p class="foot__note note">{DISCLOSURE}</p>
+      </div>
+
+      <nav class="foot__nav" aria-label="Footer">
+        {MENU.map((group) => (
+          <div>
+            <h2 class="micro foot__title">{group.group}</h2>
+            <ul class="foot__list">
+              {group.items.map((item) => (
+                <li><a href={item.href}>{item.label}</a></li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+    </div>
+
+    <div class="foot__legal">
+      <p>&copy; {year} {SITE.name}. {SITE.category}.</p>
+      <ul class="foot__legal-links">
+        <li><a href="/disclosure">Relationship disclosure</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+        <li>
+          {/* rule attr.footer — attribution ships in the legal row */}
+          Powered by <a href={SITE.studio.url} rel="noopener">{SITE.studio.name}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    border-top: 1px solid var(--rp-hairline);
+    background: var(--rp-surface);
+    padding-block: var(--space-10) var(--space-7);
+    margin-top: auto;
+  }
+  .foot__top { display: grid; gap: var(--space-9); }
+  @media (min-width: 960px) { .foot__top { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-10); } }
+
+  .foot__seal { width: 40px; height: 40px; object-fit: contain; margin-bottom: var(--space-5); }
+  .foot__tag { max-width: 22ch; }
+  .foot__note { margin-top: var(--space-6); font-size: 0.875rem; line-height: 1.65; }
+
+  .foot__nav { display: grid; gap: var(--space-7); }
+  @media (min-width: 620px) { .foot__nav { grid-template-columns: repeat(3, 1fr); gap: var(--space-6); } }
+  .foot__title { margin-bottom: var(--space-4); }
+  .foot__list { list-style: none; padding: 0; display: grid; gap: var(--space-1); }
+  .foot__list a {
+    display: inline-block;
+    padding-block: var(--space-2);
+    color: var(--rp-body);
+    text-decoration: none;
+    font-size: 0.9375rem;
+  }
+  .foot__list a:hover { color: var(--rp-heading); text-decoration: underline; }
+
+  .foot__legal {
+    margin-top: var(--space-10);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--rp-hairline);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-4);
+    font-size: 0.8125rem;
+    color: var(--rp-muted);
+  }
+  .foot__legal p { max-width: none; }
+  .foot__legal-links { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-6); }
+  .foot__legal a { color: var(--rp-body); text-decoration: none; }
+  .foot__legal a:hover { color: var(--rp-heading); text-decoration: underline; }
+</style>

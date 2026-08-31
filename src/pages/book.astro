@@ -1,0 +1,248 @@
+---
+export const prerender = false;
+
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Lattice from '../components/Lattice.astro';
+import { SITE } from '../lib/site';
+import { bookings } from '../lib/db';
+import { sendBookingAlert, sendBookingConfirmation } from '../lib/email';
+import { randomUUID } from 'node:crypto';
+
+/**
+ * Action stage — one ask, one link (rule funnel.one-ask). No secondary offers,
+ * no navigation bait, no upsell blocks below the form.
+ */
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+let errors: Record<string, string> = {};
+let values: Record<string, string> = {};
+let done = false;
+
+const scanToken = Astro.url.searchParams.get('scan') ?? '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  for (const [k, v] of form.entries()) if (typeof v === 'string') values[k] = v.trim();
+
+  if (!values.name) errors.name = 'Name is required so we know who we are speaking with.';
+  if (!values.company) errors.company = 'Company is required — it sets the context for the conversation.';
+  if (!values.email) errors.email = 'Work email is required. It is where we send the proposed times.';
+  else if (!EMAIL.test(values.email)) errors.email = 'That does not look like an email address. Check for a missing @ or domain.';
+  if (!values.context || values.context.length < 20) {
+    errors.context = 'Tell us what changed and what it is costing — two or three sentences is enough, but a few words is not.';
+  }
+
+  if (Object.keys(errors).length === 0 && !values.website_confirm) {
+    const token = randomUUID();
+    const col = await bookings();
+    if (col) {
+      try {
+        await col.insertOne({
+          token,
+          createdAt: new Date(),
+          name: values.name!,
+          email: values.email!,
+          company: values.company!,
+          context: values.context!,
+          scanToken: values.scan || undefined,
+        });
+      } catch (err) {
+        console.error('[booking] store failed:', (err as Error).message);
+      }
+    }
+    void Promise.allSettled([
+      sendBookingAlert({
+        name: values.name!, email: values.email!, company: values.company!,
+        context: values.context!, scanToken: values.scan || undefined,
+      }),
+      sendBookingConfirmation({ to: values.email!, firstName: values.name!.split(/\s+/)[0] || 'there' }),
+    ]);
+    done = true;
+  }
+}
+
+const prepare = [
+  'What changed', 'The expected result', 'What happened instead', 'What has already been tried',
+  'Relevant data', 'Decision-makers', 'Cost of waiting', 'Constraints on time, budget and implementation',
+];
+const errorCount = Object.keys(errors).length;
+---
+<Base
+  title="Book a Routing Consultation"
+  description="Bring the problem. Leave the preferred solution at the door. A routing consultation confirms the decision question, stakeholders, evidence, scope and disclosures before any work is quoted."
+  noindex={done}
+>
+  {done ? (
+    <section class="lead">
+      <Lattice intensity="low" />
+      <div class="shell lead__inner">
+        <span class="icon-frame done__icon"><Icon name="check" /></span>
+        <p class="micro eyebrow">Request received</p>
+        <h1 class="display">We have your request.</h1>
+        <p class="lede">
+          A person reviews every request. You will hear back with proposed times — not an automated
+          calendar loop. We have emailed a copy of what to prepare to {values.email}.
+        </p>
+        <p class="lead__note micro">
+          Please do not send passwords, confidential customer data, privileged legal documents or
+          regulated personal information.
+        </p>
+      </div>
+    </section>
+  ) : (
+    <>
+      <section class="lead">
+        <Lattice intensity="low" />
+        <div class="shell lead__inner">
+          <p class="micro eyebrow">Routing consultation</p>
+          <h1 class="display">Bring the problem. Leave the preferred solution at the door.</h1>
+          <p class="lede">
+            The consultation confirms the decision question, the stakeholders, the evidence available,
+            the scope and level of assessment, the deadline, the deliverable, and every commercial
+            relationship that could bear on the recommendation.
+          </p>
+        </div>
+      </section>
+
+      <section class="section section--tight">
+        <div class="shell book">
+          <div class="book__prep">
+            <h2 class="micro">Prepare these</h2>
+            <ul class="ticks book__list">
+              {prepare.map((p) => (<li><Icon name="check" /><span>{p}</span></li>))}
+            </ul>
+            <p class="note book__warn">
+              Do not send passwords, confidential customer data, privileged legal documents or
+              regulated personal information.
+            </p>
+          </div>
+
+          <form method="POST" class="book__form" novalidate>
+            {errorCount > 0 && (
+              <div class="summary" role="alert" tabindex="-1">
+                <h2 class="summary__title">
+                  <Icon name="alert" size={20} />
+                  {errorCount === 1 ? 'One answer needs attention' : `${errorCount} answers need attention`}
+                </h2>
+                <ul class="summary__list">
+                  {Object.entries(errors).map(([k, m]) => (<li><a href={`#b-${k}`}>{m}</a></li>))}
+                </ul>
+              </div>
+            )}
+
+            <input type="hidden" name="scan" value={values.scan ?? scanToken} />
+
+            <div class="fieldset">
+              <label class="lbl" for="b-name">Name</label>
+              <input class="control" id="b-name" name="name" type="text" autocomplete="name" required
+                value={values.name ?? ''} aria-invalid={errors.name ? 'true' : undefined} />
+              {errors.name && <p class="err"><Icon name="alert" size={16} /><span>{errors.name}</span></p>}
+            </div>
+
+            <div class="fieldset">
+              <label class="lbl" for="b-company">Company</label>
+              <input class="control" id="b-company" name="company" type="text" autocomplete="organization" required
+                value={values.company ?? ''} aria-invalid={errors.company ? 'true' : undefined} />
+              {errors.company && <p class="err"><Icon name="alert" size={16} /><span>{errors.company}</span></p>}
+            </div>
+
+            <div class="fieldset">
+              <label class="lbl" for="b-email">Work email</label>
+              <input class="control" id="b-email" name="email" type="email" autocomplete="email" required
+                value={values.email ?? ''} aria-invalid={errors.email ? 'true' : undefined} />
+              {errors.email && <p class="err"><Icon name="alert" size={16} /><span>{errors.email}</span></p>}
+            </div>
+
+            <div class="fieldset">
+              <label class="lbl" for="b-context">What changed, and what is it costing?</label>
+              <p class="hint" id="b-context-hint">Two or three sentences. The detail comes on the call.</p>
+              <textarea class="control" id="b-context" name="context" rows="5" required
+                aria-describedby="b-context-hint" aria-invalid={errors.context ? 'true' : undefined}
+              >{values.context ?? ''}</textarea>
+              {errors.context && <p class="err"><Icon name="alert" size={16} /><span>{errors.context}</span></p>}
+            </div>
+
+            <div class="trap" aria-hidden="true">
+              <label for="website_confirm">Do not fill this in</label>
+              <input type="text" id="website_confirm" name="website_confirm" tabindex="-1" autocomplete="off" />
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--lg btn--block" data-event="booking_submit">
+              Request my routing consultation
+              <Icon name="arrow" size={18} class="arrow" />
+            </button>
+
+            {SITE.bookingUrl && (
+              <p class="book__alt">
+                Prefer to pick a time yourself? <a href={SITE.bookingUrl} rel="noopener">Open the calendar</a>.
+              </p>
+            )}
+          </form>
+        </div>
+      </section>
+    </>
+  )}
+</Base>
+
+<script>
+  document.querySelector('form')?.addEventListener('submit', () => (window as any).vpTrack?.('booking_submit'));
+  (window as any).vpTrack?.('booking_start');
+</script>
+
+<style>
+  .lead { position: relative; overflow: hidden; padding-block: var(--space-10) var(--space-9); }
+  .lead__inner { position: relative; }
+  .lead__inner > * + * { margin-top: var(--space-5); }
+  .lead h1 { max-width: 18ch; }
+  .lead__note { margin-top: var(--space-7); }
+  .done__icon { background: rgba(63, 164, 106, 0.16); border-color: rgba(63, 164, 106, 0.4); color: #6FCB96; margin-bottom: var(--space-6); }
+
+  .book { display: grid; gap: var(--space-9); align-items: start; }
+  @media (min-width: 960px) { .book { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: var(--space-10); } }
+
+  .book__prep h2 { margin-bottom: var(--space-5); }
+  .book__warn { margin-top: var(--space-7); font-size: 0.875rem; }
+
+  .book__form {
+    background: var(--rp-surface);
+    border: 1px solid var(--rp-hairline);
+    border-radius: var(--radius-panel);
+    padding: var(--space-7);
+  }
+  @media (min-width: 700px) { .book__form { padding: var(--space-8); } }
+
+  .fieldset + .fieldset { margin-top: var(--space-6); }
+  .lbl { display: block; color: var(--rp-heading); font-weight: 600; font-size: 1rem; margin-bottom: var(--space-2); }
+  .hint { color: var(--rp-muted); font-size: 0.875rem; margin-bottom: var(--space-3); }
+
+  .control {
+    width: 100%; min-height: 48px;
+    padding: var(--space-3) var(--space-4);
+    background: var(--rp-canvas);
+    border: 1px solid var(--rp-hairline);
+    border-radius: var(--radius-control);
+    color: var(--rp-heading); font: inherit; font-size: 1rem; line-height: 1.6;
+    transition: border-color 180ms var(--ease-out), background-color 180ms var(--ease-out);
+  }
+  textarea.control { resize: vertical; min-height: 130px; }
+  .control:hover { border-color: rgba(245, 247, 250, 0.3); }
+  .control:focus { border-color: #8AA6F2; background: var(--rp-raised); }
+  .control[aria-invalid='true'] { border-color: #D8574F; }
+
+  .err { display: flex; align-items: flex-start; gap: var(--space-2); color: #F0938C; font-size: 0.875rem; margin-top: var(--space-3); }
+  .err :global(svg) { flex: none; margin-top: 3px; }
+
+  .summary {
+    border: 1px solid #D8574F; background: rgba(216, 87, 79, 0.1);
+    border-radius: var(--radius-card); padding: var(--space-5); margin-bottom: var(--space-7);
+  }
+  .summary__title { display: flex; align-items: center; gap: var(--space-3); font-size: 1.0625rem; color: #F0938C; }
+  .summary__list { margin: var(--space-4) 0 0; padding-left: var(--space-5); display: grid; gap: var(--space-2); }
+  .summary__list a { color: #F0938C; font-size: 0.9375rem; }
+
+  .trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .book__form button { margin-top: var(--space-8); }
+  .book__alt { margin-top: var(--space-5); font-size: 0.875rem; color: var(--rp-muted); text-align: center; }
+</style>

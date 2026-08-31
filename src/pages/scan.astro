@@ -1,0 +1,327 @@
+---
+export const prerender = false;
+
+import Base from '../layouts/Base.astro';
+import Field from '../components/Field.astro';
+import Icon from '../components/Icon.astro';
+import Lattice from '../components/Lattice.astro';
+import { STEPS } from '../lib/scan-schema';
+import { validateScan, firstErrorStep, type Errors } from '../lib/validate';
+import { assess } from '../lib/scoring';
+import { scans } from '../lib/db';
+import { sendScanConfirmation, sendInternalScanAlert } from '../lib/email';
+import { ROUTE_COPY } from '../lib/scoring';
+import { SITE } from '../lib/site';
+import { randomUUID } from 'node:crypto';
+
+let errors: Errors = {};
+let values: Record<string, string> = {};
+let jumpTo = 0;
+let failed = false;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  for (const [k, v] of form.entries()) {
+    if (typeof v === 'string') values[k] = v.trim();
+  }
+  // Honeypot: a bot fills every field it finds.
+  const trapped = (values.website_confirm ?? '') !== '';
+  errors = validateScan(values);
+
+  if (Object.keys(errors).length === 0 && !trapped) {
+    const assessment = assess(values);
+    const token = randomUUID();
+    const resultUrl = new URL(`/scan/route/${token}`, SITE.url).href;
+
+    const col = await scans();
+    if (col) {
+      try {
+        await col.insertOne({
+          token,
+          createdAt: new Date(),
+          answers: values,
+          assessment: {
+            total: assessment.total,
+            max: assessment.max,
+            tier: assessment.tier,
+            route: assessment.route,
+            providerIds: assessment.providerIds,
+            regulated: assessment.regulated,
+            dimensions: assessment.dimensions.map((d) => ({ id: d.id, label: d.label, score: d.score, why: d.why })),
+          },
+          source: {
+            referer: Astro.request.headers.get('referer') ?? undefined,
+            userAgent: Astro.request.headers.get('user-agent') ?? undefined,
+          },
+          notifiedAt: new Date(),
+          // Opt-in only. Unchecked means no marketing sequence, ever.
+          nurture: values.consent_nurture === 'yes'
+            ? { enrolled: true, step: 0, nextAt: new Date(Date.now() + 86_400_000), unsubscribed: false }
+            : { enrolled: false },
+        } as any);
+      } catch (err) {
+        console.error('[scan] store failed:', (err as Error).message);
+      }
+    }
+
+    // Email is best-effort and never blocks the redirect the visitor is owed.
+    const firstName = (values.name ?? '').split(/\s+/)[0] || 'there';
+    void Promise.allSettled([
+      sendScanConfirmation({
+        to: values.email!,
+        firstName,
+        company: values.company ?? 'your company',
+        routeNextStep: ROUTE_COPY[assessment.route].next,
+        resultUrl,
+      }),
+      sendInternalScanAlert({
+        tier: assessment.tier,
+        route: assessment.route,
+        total: assessment.total,
+        max: assessment.max,
+        regulated: assessment.regulated,
+        answers: values,
+        resultUrl,
+      }),
+    ]);
+
+    return Astro.redirect(`/scan/route/${token}`, 303);
+  }
+
+  failed = true;
+  jumpTo = firstErrorStep(errors);
+}
+
+const errorCount = Object.keys(errors).length;
+const errorList = Object.entries(errors);
+---
+<Base
+  title="Problem Route Scan — free business problem diagnosis intake"
+  description="Describe the symptom and what you have already tried. The Problem Route Scan classifies the issue, tests whether the visible symptom is the real constraint, and recommends the right next diagnostic step."
+>
+  <section class="lead">
+    <Lattice intensity="low" />
+    <div class="shell lead__inner">
+      <p class="micro eyebrow">Start with the symptom</p>
+      <h1 class="display">What is happening — and what have you already tried?</h1>
+      <p class="lede">
+        The Problem Route Scan classifies the issue, tests whether the visible symptom is likely the
+        real constraint, and recommends the right next diagnostic step.
+      </p>
+      <ul class="chips lead__meta">
+        <li class="chip"><Icon name="clock" size={16} /> About 5 minutes</li>
+        <li class="chip"><Icon name="shield" size={16} /> No obligation</li>
+        <li class="chip"><Icon name="check" size={16} /> No instant sales pitch</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="shell">
+      <form method="POST" action="/scan" class="scan" novalidate data-scan data-jump={jumpTo}>
+        <!-- error summary: submission is never blocked silently (form.submit) -->
+        {failed && (
+          <div class="summary" role="alert" tabindex="-1" data-summary>
+            <h2 class="summary__title">
+              <Icon name="alert" size={20} />
+              {errorCount === 1 ? 'One answer needs attention' : `${errorCount} answers need attention`}
+            </h2>
+            <p class="summary__body">Nothing you entered was lost. Fix these and submit again:</p>
+            <ul class="summary__list">
+              {errorList.map(([name, message]) => (
+                <li><a href={`#f-${name}`}>{message}</a></li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <ol class="progress" data-progress aria-label="Scan progress">
+          {STEPS.map((step, i) => (
+            <li class="progress__item" data-progress-item={i}>
+              <span class="progress__dot"></span>
+              <span class="progress__label">{step.title}</span>
+            </li>
+          ))}
+        </ol>
+
+        {STEPS.map((step, i) => (
+          <section class="step" data-step={i} aria-labelledby={`step-${step.id}`}>
+            <header class="step__head">
+              <p class="micro">Step {i + 1} of {STEPS.length}</p>
+              <h2 class="h3" id={`step-${step.id}`}>{step.title}</h2>
+              <p class="step__intro">{step.intro}</p>
+            </header>
+
+            {step.fields.map((field) => (
+              <Field field={field} value={values[field.name] ?? ''} error={errors[field.name]} />
+            ))}
+          </section>
+        ))}
+
+        <!-- honeypot: hidden from everyone, including screen readers -->
+        <div class="trap" aria-hidden="true">
+          <label for="website_confirm">Do not fill this in</label>
+          <input type="text" id="website_confirm" name="website_confirm" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <div class="scan__foot">
+          <p class="scan__legal">
+            The Problem Route Scan is a preliminary business intake, not legal, financial, medical or
+            other regulated professional advice. High-stakes regulated matters may require a qualified
+            licensed professional.
+          </p>
+          <div class="scan__actions">
+            <button type="button" class="btn btn--ghost" data-back hidden>Back</button>
+            <button type="button" class="btn btn--primary btn--lg" data-next hidden>
+              Continue
+              <Icon name="arrow" size={18} class="arrow" />
+            </button>
+            <button type="submit" class="btn btn--primary btn--lg" data-submit>
+              Route my problem
+              <Icon name="arrow" size={18} class="arrow" />
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lead { position: relative; overflow: hidden; padding-block: var(--space-10) var(--space-9); }
+  .lead__inner { position: relative; }
+  .lead__inner > * + * { margin-top: var(--space-5); }
+  .lead h1 { max-width: 17ch; }
+  .lead__meta { margin-top: var(--space-7); }
+  .lead__meta :global(svg) { color: #8AA6F2; }
+
+  .scan { max-width: 780px; }
+
+  /* error summary --------------------------------------------------------- */
+  .summary {
+    border: 1px solid #D8574F;
+    background: rgba(216, 87, 79, 0.1);
+    border-radius: var(--radius-card);
+    padding: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+  .summary__title { display: flex; align-items: center; gap: var(--space-3); font-size: 1.125rem; color: #F0938C; }
+  .summary__body { margin-top: var(--space-3); font-size: 0.9375rem; }
+  .summary__list { margin: var(--space-4) 0 0; padding-left: var(--space-5); display: grid; gap: var(--space-2); }
+  .summary__list a { color: #F0938C; font-size: 0.9375rem; }
+
+  /* progress -------------------------------------------------------------- */
+  .progress {
+    list-style: none;
+    padding: 0 0 var(--space-6);
+    margin: 0 0 var(--space-8);
+    border-bottom: 1px solid var(--rp-hairline);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+  }
+  .progress__item { display: inline-flex; align-items: center; gap: var(--space-2); max-width: none; }
+  .progress__dot {
+    width: 8px; height: 8px; border-radius: 999px;
+    background: var(--rp-raised);
+    border: 1px solid var(--rp-hairline);
+    flex: none;
+    transition: background-color 240ms var(--ease-out), border-color 240ms var(--ease-out);
+  }
+  .progress__label { font-size: 0.8125rem; color: var(--rp-muted); }
+  /* state is never colour-only: the label brightens and the dot fills (color.only) */
+  .progress__item.is-current .progress__dot { background: var(--rp-accent); border-color: var(--rp-accent); }
+  .progress__item.is-current .progress__label { color: var(--rp-heading); font-weight: 600; }
+  .progress__item.is-done .progress__dot { background: #8AA6F2; border-color: #8AA6F2; }
+  .progress__item.is-done .progress__label { color: var(--rp-body); }
+
+  /* steps ------------------------------------------------------------------ */
+  .step + .step { margin-top: var(--space-10); padding-top: var(--space-9); border-top: 1px solid var(--rp-hairline); }
+  .step__head { margin-bottom: var(--space-8); }
+  .step__head .h3 { margin-top: var(--space-2); }
+  .step__intro { margin-top: var(--space-3); color: var(--rp-muted); max-width: 64ch; }
+  /* JS-driven single-step mode uses [hidden]; without JS every step shows */
+  .step[hidden] { display: none; }
+
+  .trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .scan__foot {
+    margin-top: var(--space-9);
+    padding-top: var(--space-7);
+    border-top: 1px solid var(--rp-hairline);
+  }
+  .scan__legal { font-size: 0.8125rem; color: var(--rp-muted); max-width: 68ch; }
+  .scan__actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-7); }
+</style>
+
+<script>
+  /**
+   * Progressive enhancement. Without JS the form is one long page and submits
+   * normally — every question is reachable and the server validates it all.
+   * With JS it becomes a stepper. Validation stays server-side either way.
+   */
+  const form = document.querySelector<HTMLFormElement>('[data-scan]');
+  if (form) {
+    const steps = Array.from(form.querySelectorAll<HTMLElement>('[data-step]'));
+    const items = Array.from(form.querySelectorAll<HTMLElement>('[data-progress-item]'));
+    const back = form.querySelector<HTMLButtonElement>('[data-back]');
+    const next = form.querySelector<HTMLButtonElement>('[data-next]');
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]');
+    const summary = form.querySelector<HTMLElement>('[data-summary]');
+    const last = steps.length - 1;
+
+    let current = Number(form.dataset.jump || 0);
+    let started = false;
+
+    const track = (name: string, params?: Record<string, unknown>) =>
+      (window as any).vpTrack?.(name, params);
+
+    function render() {
+      steps.forEach((s, i) => { s.hidden = i !== current; });
+      items.forEach((it, i) => {
+        it.classList.toggle('is-current', i === current);
+        it.classList.toggle('is-done', i < current);
+      });
+      if (back) back.hidden = current === 0;
+      if (next) next.hidden = current === last;
+      if (submit) submit.hidden = current !== last;
+    }
+
+    // Only enter stepper mode once we know JS is running.
+    if (back && next && submit) {
+      back.hidden = false;
+      next.hidden = false;
+      render();
+
+      next.addEventListener('click', () => {
+        const step = steps[current];
+        // Use native constraint validation for the current step only.
+        const fields = Array.from(step.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea'));
+        const invalid = fields.find((f) => !f.checkValidity());
+        if (invalid) {
+          invalid.reportValidity();
+          return;
+        }
+        current = Math.min(current + 1, last);
+        render();
+        track('scan_step', { step: current + 1 });
+        step.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      back.addEventListener('click', () => {
+        current = Math.max(current - 1, 0);
+        render();
+        steps[current].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      form.addEventListener('input', () => {
+        if (!started) { started = true; track('scan_start'); }
+      }, { once: false });
+
+      form.addEventListener('submit', () => track('scan_submit'));
+
+      // An error summary must be reachable, so surface it above the stepper.
+      if (summary) summary.focus();
+    }
+  }
+</script>

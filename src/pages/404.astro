@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Lattice from '../components/Lattice.astro';
+---
+<Base
+  title="Page not found"
+  description="That page does not exist. Start with the Problem Route Scan, or read how the routing protocol works."
+  noindex={true}
+>
+  <section class="lead">
+    <Lattice intensity="low" />
+    <div class="shell lead__inner">
+      <p class="micro eyebrow">404</p>
+      <h1 class="display">That path does not resolve.</h1>
+      <p class="lede">
+        The page you asked for is not here. The two most useful places to be instead:
+      </p>
+      <div class="btn-row">
+        <a class="btn btn--primary btn--lg" href="/scan">
+          Start the Problem Route Scan
+          <Icon name="arrow" size={18} class="arrow" />
+        </a>
+        <a class="btn btn--ghost btn--lg" href="/">Return to the homepage</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lead { position: relative; overflow: hidden; padding-block: var(--space-10) 120px; }
+  .lead__inner { position: relative; }
+  .lead__inner > * + * { margin-top: var(--space-5); }
+  .lead h1 { max-width: 16ch; }
+  .btn-row { margin-top: var(--space-8); }
+</style>

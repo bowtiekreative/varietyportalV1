@@ -1,0 +1,158 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Lattice from '../components/Lattice.astro';
+import { SITE } from '../lib/site';
+
+const stages = [
+  { icon: 'stethoscope', title: 'Symptom', body: 'Capture what the buyer sees, what changed, where it appears and why it matters. We take the complaint in ordinary language — translating it is our job, not yours.' },
+  { icon: 'decompose', title: 'Decomposition', body: 'Separate objects, conditions, actions, tools, resources, stakeholders, dependencies and desired outcomes. Most misdiagnosis happens here, by treating a bundle of things as one thing.' },
+  { icon: 'grid', title: 'Variety', body: 'Run the 6 interrogatives × 6 relational modifiers × 6 quantitative scales to produce alternative explanations and pathways — including the ones your current framing excludes.' },
+  { icon: 'filter', title: 'Elimination', body: 'Filter paths using evidence, strategic fit, urgency, reversibility, cost, capacity, risk and time to useful evidence. A killed path is documented negative space, not wasted work.' },
+  { icon: 'target', title: 'Prescription', body: 'Identify the smallest sufficient intervention and what must happen first. Not the largest scope we could justify — the smallest one capable of producing evidence.' },
+  { icon: 'route', title: 'Routing', body: 'Recommend an affiliated company, a combination of providers, an external specialist, an internal action, or a deliberate no-purchase path. All four are real outcomes.' },
+  { icon: 'review', title: 'Review', body: 'Check whether the intervention changed the constraint or merely moved it. A constraint that relocated is not a constraint that was solved.' },
+];
+
+const filters = [
+  { term: 'Evidence', def: 'Can this explanation be confirmed or killed with records you can actually obtain?' },
+  { term: 'Strategic fit', def: 'Does acting on it move the business toward where it is trying to go?' },
+  { term: 'Urgency', def: 'Does the timing of the decision permit this path at all?' },
+  { term: 'Reversibility', def: 'If this turns out wrong, what does it cost to undo?' },
+  { term: 'Cost', def: 'What does the intervention consume in money, attention and political capital?' },
+  { term: 'Capacity', def: 'Is there anyone available to implement it, and do they have the authority?' },
+  { term: 'Risk', def: 'What is exposed if this is attempted and fails publicly?' },
+  { term: 'Time to useful evidence', def: 'How long before you know whether it worked? Shorter usually wins.' },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: SITE.mechanism,
+  description: 'The seven stages Variety Portal uses to move from a business symptom to a recommended first move and provider.',
+  step: stages.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, name: s.title, text: s.body })),
+};
+---
+<Base
+  title="How It Works — the Variety Routing Protocol"
+  description="Seven stages from symptom to recommended first move: capture, decompose, generate variety, eliminate, prescribe, route and review."
+  jsonLd={jsonLd}
+>
+  <section class="lead">
+    <Lattice intensity="low" />
+    <div class="shell lead__inner">
+      <p class="micro eyebrow">{SITE.mechanism}</p>
+      <h1 class="display">From a complaint you can say out loud to a move you can defend.</h1>
+      <p class="lede">
+        Seven stages. The first four exist to stop you buying the wrong thing. The last three exist
+        to make sure the right thing actually happens, and that you can tell whether it worked.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <ol class="stages">
+        {stages.map((s) => (
+          <li class="stage" data-reveal>
+            <span class="icon-frame stage__icon"><Icon name={s.icon} /></span>
+            <div class="stage__body">
+              <h2 class="h3">{s.title}</h2>
+              <p>{s.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">Stage four in detail</p>
+        <h2 class="h2">Eight filters kill most of the 216.</h2>
+        <p class="lede">
+          Elimination is where the method earns its keep. Every surviving path has passed all eight —
+          and every path that failed is recorded with the reason it failed.
+        </p>
+      </div>
+      <dl class="dl filters" data-reveal>
+        {filters.map((f) => (
+          <div><dt>{f.term}</dt><dd>{f.def}</dd></div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="split">
+        <div class="section-head" data-reveal>
+          <p class="micro eyebrow">What routing can conclude</p>
+          <h2 class="h2">Four honest outcomes, not one.</h2>
+        </div>
+        <ul class="outcomes" data-reveal>
+          <li><span class="icon-frame"><Icon name="link" /></span><div><h3 class="h4">An affiliated company</h3><p>Recommended only when the analysis supports the fit, with the relationship disclosed before engagement.</p></div></li>
+          <li><span class="icon-frame"><Icon name="layers" /></span><div><h3 class="h4">A combination of providers</h3><p>Sequenced, with a named owner and an explicit order of operations.</p></div></li>
+          <li><span class="icon-frame"><Icon name="search" /></span><div><h3 class="h4">An outside specialist</h3><p>When nobody in the portfolio is the right fit, we say so and can help source someone who is.</p></div></li>
+          <li><span class="icon-frame"><Icon name="shield" /></span><div><h3 class="h4">No purchase yet</h3><p>Sometimes the correct recommendation is an internal action, more evidence, or nothing at all. We will tell you when that is the case.</p></div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface section--hairline center">
+    <div class="shell">
+      <h2 class="h2" data-reveal>Start at stage one.</h2>
+      <p class="lede" data-reveal>Tell us what is happening. Five minutes, no obligation, no instant sales pitch.</p>
+      <p class="btn-row cta" data-reveal>
+        <a class="btn btn--primary btn--lg" href="/scan" data-event="scan_start">
+          Start the Problem Route Scan
+          <Icon name="arrow" size={18} class="arrow" />
+        </a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lead { position: relative; overflow: hidden; padding-block: var(--space-10) var(--space-9); }
+  .lead__inner { position: relative; }
+  .lead__inner > * + * { margin-top: var(--space-5); }
+  .lead h1 { max-width: 18ch; }
+
+  .stages { list-style: none; padding: 0; counter-reset: stage; display: grid; gap: 0; }
+  .stage {
+    counter-increment: stage;
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: var(--space-5);
+    align-items: start;
+    padding-block: var(--space-8);
+    border-bottom: 1px solid var(--rp-hairline);
+    position: relative;
+    max-width: none;
+  }
+  .stage:first-child { border-top: 1px solid var(--rp-hairline); }
+  @media (min-width: 860px) { .stage { grid-template-columns: 72px 44px 1fr; gap: var(--space-6); } }
+  .stage::before {
+    content: counter(stage, decimal-leading-zero);
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--rp-muted); padding-top: var(--space-3);
+    display: none;
+  }
+  @media (min-width: 860px) { .stage::before { display: block; } }
+  .stage__body h2 { margin-bottom: var(--space-3); }
+
+  .filters { margin-top: var(--space-9); }
+
+  .split { display: grid; gap: var(--space-8); }
+  @media (min-width: 960px) { .split { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: var(--space-10); align-items: start; } }
+
+  .outcomes { list-style: none; padding: 0; display: grid; gap: var(--space-6); }
+  .outcomes > li { display: grid; grid-template-columns: 44px 1fr; gap: var(--space-5); align-items: start; max-width: none; }
+  .outcomes h3 { margin-bottom: var(--space-2); }
+  .outcomes p { font-size: 0.9375rem; }
+
+  .cta { justify-content: center; margin-top: var(--space-7); }
+</style>

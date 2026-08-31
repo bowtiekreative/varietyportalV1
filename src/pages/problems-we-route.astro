@@ -1,0 +1,144 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Lattice from '../components/Lattice.astro';
+
+const problems = [
+  {
+    icon: 'magnet', quote: 'We need more leads.',
+    body: 'The most common request we receive, and the one most likely to be a different problem wearing a costume.',
+    constraints: ['Positioning', 'Offer', 'Visibility', 'Proof', 'Conversion', 'Follow-up', 'Sales capacity', 'Measurement'],
+  },
+  {
+    icon: 'monitor', quote: 'Our website is not working.',
+    body: 'A site can be technically excellent and still fail, because "working" is not a property of the site alone.',
+    constraints: ['Traffic quality', 'Messaging', 'Local relevance', 'Accessibility', 'Trust', 'User journey', 'Sales response'],
+  },
+  {
+    icon: 'cpu', quote: 'We need AI or automation.',
+    body: 'Automating a broken process makes it fail faster and at greater volume. Sequence matters more here than anywhere else.',
+    constraints: ['Process design', 'Information quality', 'Ownership', 'Exception handling', 'Choosing a task that should not be automated'],
+  },
+  {
+    icon: 'handoff', quote: 'The team keeps dropping the ball.',
+    body: 'Rarely a people problem in the way it is first described. Usually a structure problem that shows up as a people problem.',
+    constraints: ['Unclear decisions', 'Missing resources', 'Fragile handoffs', 'Incentives', 'Capacity', 'A process with no alternative path'],
+  },
+  {
+    icon: 'compass', quote: 'Our brand needs a refresh.',
+    body: 'Sometimes true. Often a request to fix a category, audience or proof problem with visual work that cannot reach it.',
+    constraints: ['Identity', 'Category', 'Audience', 'Promise', 'Proof', 'Experience', 'Implementation consistency'],
+  },
+  {
+    icon: 'question', quote: 'We do not know what to do next.',
+    body: 'The most honest version of every other entry on this page — and the one Variety Portal is designed for.',
+    constraints: ['Any of the above', 'Or a combination that no single vendor is positioned to see'],
+  },
+];
+---
+<Base
+  title="Problems We Route"
+  description="The sentences businesses actually use — more leads, the website is not working, we need automation — and the constraints that hide behind each one."
+>
+  <section class="lead">
+    <Lattice intensity="low" />
+    <div class="shell lead__inner">
+      <p class="micro eyebrow">Problems we route</p>
+      <h1 class="display">The sentence you would say. The constraint underneath it.</h1>
+      <p class="lede">
+        These are the requests we hear most. In every case the sentence names a symptom, and the
+        symptom has several plausible constraints behind it. Which one is yours is an empirical
+        question, not a matter of opinion.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="problems">
+        {problems.map((p) => (
+          <article class="problem" data-reveal>
+            <div class="problem__head">
+              <span class="icon-frame"><Icon name={p.icon} /></span>
+              <div>
+                <h2 class="h3">&ldquo;{p.quote}&rdquo;</h2>
+                <p class="problem__body">{p.body}</p>
+              </div>
+            </div>
+            <div class="problem__constraints">
+              <h3 class="micro">Possible constraints</h3>
+              <ul class="chips">
+                {p.constraints.map((c) => (<li class="chip">{c}</li>))}
+              </ul>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="split">
+        <div class="section-head" data-reveal>
+          <p class="micro eyebrow">Why this happens</p>
+          <h2 class="h2">Every vendor diagnoses the problem they sell.</h2>
+        </div>
+        <div class="stack-6" data-reveal>
+          <p>
+            Specialists interpret problems through the tools they know. That is not dishonesty — it
+            is what expertise does, and it is genuinely valuable once the route is clear.
+          </p>
+          <p>
+            The failure happens when the diagnosis and the sale come from the same party. Before
+            choosing a specialist, compare the alternative explanations and define what evidence
+            would prove or disprove each one.
+          </p>
+          <p class="note">
+            Variety Portal is the neutral step in front of that decision. It is also why we disclose
+            every affiliated relationship, and why &ldquo;no purchase yet&rdquo; is a real conclusion
+            the analysis is allowed to reach.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section center">
+    <div class="shell">
+      <h2 class="h2" data-reveal>Which one is actually yours?</h2>
+      <p class="lede" data-reveal>Five minutes. Free. A person reviews it before anything is recommended.</p>
+      <p class="btn-row cta" data-reveal>
+        <a class="btn btn--primary btn--lg" href="/scan" data-event="scan_start">
+          Start the Problem Route Scan
+          <Icon name="arrow" size={18} class="arrow" />
+        </a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lead { position: relative; overflow: hidden; padding-block: var(--space-10) var(--space-9); }
+  .lead__inner { position: relative; }
+  .lead__inner > * + * { margin-top: var(--space-5); }
+  .lead h1 { max-width: 17ch; }
+
+  .problems { display: grid; gap: 0; }
+  .problem { padding-block: var(--space-9); border-bottom: 1px solid var(--rp-hairline); }
+  .problem:first-child { border-top: 1px solid var(--rp-hairline); }
+  @media (min-width: 960px) { .problem { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--space-9); align-items: start; } }
+
+  .problem__head { display: grid; grid-template-columns: 44px 1fr; gap: var(--space-5); align-items: start; }
+  .problem__head h2 { margin-bottom: var(--space-3); }
+  .problem__body { font-size: 0.9375rem; }
+
+  .problem__constraints { margin-top: var(--space-6); }
+  @media (min-width: 960px) { .problem__constraints { margin-top: 0; } }
+  .problem__constraints h3 { margin-bottom: var(--space-4); }
+
+  .split { display: grid; gap: var(--space-8); }
+  @media (min-width: 960px) { .split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-10); align-items: start; } }
+
+  .cta { justify-content: center; margin-top: var(--space-7); }
+</style>

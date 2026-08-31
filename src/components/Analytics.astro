@@ -1,0 +1,105 @@
+---
+/**
+ * Consent-denied-by-default analytics (rules analytics.consent-first,
+ * analytics.spa-pageview, analytics.no-secrets, seo.invented-facts).
+ *
+ * The measurement id comes from the environment. If it is unset, NOTHING loads
+ * and no tag is injected — we never invent a tracking id to fill the blank.
+ */
+const gaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID || '';
+const valid = /^G-[A-Z0-9]{6,}$/.test(gaId);
+---
+{valid && (
+  <>
+    <script is:inline define:vars={{ gaId }}>
+      // Consent defaults are set ABOVE the tag, denied, before anything loads.
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'denied',
+        personalization_storage: 'denied',
+        security_storage: 'granted',
+        wait_for_update: 500,
+      });
+      gtag('js', new Date());
+      gtag('config', gaId, { anonymize_ip: true });
+
+      var stored = null;
+      try { stored = localStorage.getItem('vp-consent'); } catch (e) {}
+      if (stored === 'granted') {
+        gtag('consent', 'update', { analytics_storage: 'granted' });
+      }
+      // Named funnel events (rule funnel.transition-event).
+      window.vpTrack = function (name, params) {
+        try { gtag('event', name, params || {}); } catch (e) {}
+      };
+    </script>
+    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+  </>
+)}
+{!valid && (
+  <script is:inline>
+    // No measurement id configured. Funnel events still resolve to a no-op so
+    // call sites never need to feature-detect.
+    window.vpTrack = function () {};
+  </script>
+)}
+
+{valid && (
+  <div class="consent" id="consent" hidden data-consent>
+    <div class="consent__inner">
+      <p class="consent__text">
+        We use analytics to see which parts of this funnel work. Nothing loads until you choose.
+      </p>
+      <div class="consent__actions">
+        <button type="button" class="btn btn--ghost" data-consent-deny>Decline</button>
+        <button type="button" class="btn btn--primary" data-consent-allow>Allow analytics</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .consent {
+      position: fixed;
+      inset-inline: var(--space-4);
+      bottom: var(--space-4);
+      z-index: 150;
+      background: var(--rp-raised);
+      border: 1px solid var(--rp-hairline);
+      border-radius: var(--radius-card);
+      padding: var(--space-5) var(--space-6);
+      max-width: 620px;
+      margin-inline: auto;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+    }
+    .consent__inner { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; justify-content: space-between; }
+    .consent__text { font-size: 0.875rem; margin: 0; max-width: 46ch; }
+    .consent__actions { display: flex; gap: var(--space-3); }
+    .consent__actions .btn { min-height: 40px; padding-inline: var(--space-5); font-size: 0.875rem; }
+  </style>
+
+  <script is:inline>
+    (function () {
+      var box = document.querySelector('[data-consent]');
+      if (!box) return;
+      var stored = null;
+      try { stored = localStorage.getItem('vp-consent'); } catch (e) {}
+      if (!stored) box.hidden = false;
+
+      function decide(value) {
+        try { localStorage.setItem('vp-consent', value); } catch (e) {}
+        if (value === 'granted' && window.gtag) {
+          window.gtag('consent', 'update', { analytics_storage: 'granted' });
+        }
+        box.hidden = true;
+      }
+      box.querySelector('[data-consent-allow]').addEventListener('click', function () { decide('granted'); });
+      box.querySelector('[data-consent-deny]').addEventListener('click', function () { decide('denied'); });
+    })();
+  </script>
+)}

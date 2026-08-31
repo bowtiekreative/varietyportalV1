@@ -1,0 +1,178 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Lattice from '../components/Lattice.astro';
+import { PROVIDERS, DISCLOSURE } from '../lib/routes';
+
+const affiliated = PROVIDERS.filter((p) => p.affiliated);
+const external = PROVIDERS.filter((p) => !p.affiliated);
+---
+<Base
+  title="Affiliated Companies and Routing"
+  description="Variety Portal is the neutral front door to a portfolio of specialist companies. This is the full routing table, and the disclosure that applies to every recommendation."
+>
+  <section class="lead">
+    <Lattice intensity="low" />
+    <div class="shell lead__inner">
+      <p class="micro eyebrow">Affiliated routes</p>
+      <h1 class="display">Specialized companies, one diagnostic front door.</h1>
+      <p class="lede">
+        Variety Portal does not compete with the specialists. It qualifies, diagnoses, sequences and
+        routes work to them — or away from all of them, when that is the honest answer.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">The routing table</p>
+        <h2 class="h2">Diagnosed constraint, and where it goes.</h2>
+        <p class="lede">
+          This is the mapping in full. Publishing it is deliberate — you should be able to see, before
+          you engage, which conclusions lead to which of our companies.
+        </p>
+      </div>
+
+      <div class="table-scroll routing" data-reveal>
+        <table>
+          <caption>Constraint-to-provider routing. Affiliation is stated for every row.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Diagnosed constraint</th>
+              <th scope="col">Likely route</th>
+              <th scope="col">Discipline</th>
+              <th scope="col">Relationship</th>
+            </tr>
+          </thead>
+          <tbody>
+            {PROVIDERS.map((p) => (
+              <tr>
+                <th scope="row">{p.constraint}</th>
+                <td>
+                  <span class="routing__name"><Icon name={p.icon} size={18} />{p.name}</span>
+                </td>
+                <td>{p.discipline}</td>
+                <td>
+                  <span class:list={['rel', p.affiliated ? 'rel--aff' : 'rel--ext']}>
+                    <Icon name={p.affiliated ? 'link' : 'search'} size={14} />
+                    {p.affiliated ? 'Affiliated' : 'Independent'}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">The portfolio</p>
+        <h2 class="h2">Nine affiliated specialists.</h2>
+      </div>
+      <ul class="grid grid--3 portfolio">
+        {affiliated.map((p) => (
+          <li data-reveal>
+            <article class="card">
+              <span class="icon-frame"><Icon name={p.icon} /></span>
+              <h3 class="h4">{p.name}</h3>
+              <p class="portfolio__disc">{p.discipline}</p>
+              <p class="portfolio__flag micro">Affiliated with Variety Portal</p>
+            </article>
+          </li>
+        ))}
+      </ul>
+
+      {external.map((p) => (
+        <div class="external" data-reveal>
+          <span class="icon-frame"><Icon name={p.icon} /></span>
+          <div>
+            <h3 class="h4">{p.name}</h3>
+            <p>
+              When the diagnosed need sits outside the portfolio, we say so. We can recommend or help
+              source an independent specialist, and any referral or commercial relationship with them
+              is disclosed before engagement.
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="split">
+        <div class="section-head" data-reveal>
+          <p class="micro eyebrow">Trust architecture</p>
+          <h2 class="h2">The obvious objection, answered directly.</h2>
+        </div>
+        <div class="stack-6" data-reveal>
+          <p>
+            If the company diagnosing the problem also owns the companies that fix it, what stops the
+            diagnosis from always pointing inward?
+          </p>
+          <p>
+            Three things. The routing table above is published, so the mapping is inspectable. Every
+            recommendation states the relationship before you engage. And &ldquo;no purchase
+            yet&rdquo; — an internal action, more evidence, or nothing — is a conclusion the analysis
+            is explicitly allowed to reach, because a scan that can never say &ldquo;don't buy&rdquo;
+            is not a diagnosis.
+          </p>
+          <p class="note">{DISCLOSURE}</p>
+          <a class="btn btn--ghost" href="/disclosure">
+            Read the full disclosure policy
+            <Icon name="arrow" size={18} class="arrow" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface section--hairline center">
+    <div class="shell">
+      <h2 class="h2" data-reveal>Find out which route is yours.</h2>
+      <p class="btn-row cta" data-reveal>
+        <a class="btn btn--primary btn--lg" href="/scan" data-event="scan_start">
+          Start the Problem Route Scan
+          <Icon name="arrow" size={18} class="arrow" />
+        </a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lead { position: relative; overflow: hidden; padding-block: var(--space-10) var(--space-9); }
+  .lead__inner { position: relative; }
+  .lead__inner > * + * { margin-top: var(--space-5); }
+  .lead h1 { max-width: 17ch; }
+
+  .routing { margin-top: var(--space-9); }
+  .routing__name { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--rp-heading); font-weight: 600; }
+  .routing__name :global(svg) { color: #8AA6F2; flex: none; }
+
+  .rel { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 0.8125rem; font-weight: 600; white-space: nowrap; }
+  .rel--aff { color: #8AA6F2; }
+  .rel--ext { color: var(--rp-muted); }
+
+  .portfolio { list-style: none; padding: 0; margin-top: var(--space-9); }
+  .portfolio__disc { font-size: 0.9375rem; flex: 1; }
+  .portfolio__flag { margin-top: auto; padding-top: var(--space-4); border-top: 1px solid var(--rp-hairline); }
+
+  .external {
+    display: grid; grid-template-columns: 44px 1fr; gap: var(--space-5);
+    margin-top: var(--space-7); padding: var(--space-7);
+    border: 1px dashed var(--rp-hairline);
+    border-radius: var(--radius-card);
+  }
+  .external h3 { margin-bottom: var(--space-3); }
+  .external p { font-size: 0.9375rem; }
+
+  .split { display: grid; gap: var(--space-8); }
+  @media (min-width: 960px) { .split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-10); align-items: start; } }
+
+  .cta { justify-content: center; margin-top: var(--space-7); }
+</style>

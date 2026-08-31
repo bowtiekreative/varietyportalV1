@@ -1,0 +1,214 @@
+---
+/**
+ * LAKA header contract (rule nav.four — blocking).
+ * Exactly four elements: canonical seal, uppercase two-tone site name,
+ * MENU pill, one CTA pill. No inline nav links, ever (rule nav.no-inline).
+ * Every destination lives in the mega menu below the bar.
+ */
+import { SITE, BRAND, MENU, HEADER_CTA } from '../lib/site';
+import Icon from './Icon.astro';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+<header class="bar" data-bar>
+  <div class="shell shell--wide bar__inner">
+    <!-- 1 + 2 : seal and site name -->
+    <a class="bar__brand" href="/" aria-label={`${SITE.name} — home`}>
+      <img
+        class="bar__seal"
+        src={BRAND.sealDark}
+        alt=""
+        width="34"
+        height="34"
+        fetchpriority="high"
+      />
+      <span class="bar__name">
+        <span>{SITE.nameParts[0]}</span><span class="bar__name-accent">{SITE.nameParts[1]}</span>
+      </span>
+    </a>
+
+    <!-- 3 + 4 : MENU pill and the single CTA -->
+    <div class="bar__actions">
+      <button
+        type="button"
+        class="btn btn--ghost bar__menu"
+        aria-expanded="false"
+        aria-controls="mega-menu"
+        data-menu-toggle
+      >
+        <Icon name="menu" size={18} class="bar__menu-icon" />
+        <Icon name="close" size={18} class="bar__close-icon" />
+        <span data-menu-label>MENU</span>
+      </button>
+      <a class="btn btn--primary bar__cta" href={HEADER_CTA.href}>{HEADER_CTA.label}</a>
+    </div>
+  </div>
+
+  <div class="mega" id="mega-menu" hidden data-menu-panel>
+    <div class="shell shell--wide mega__inner">
+      <nav class="mega__grid" aria-label="Main">
+        {MENU.map((group) => (
+          <div class="mega__group">
+            <h2 class="micro mega__title">{group.group}</h2>
+            <ul class="mega__list">
+              {group.items.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    class="mega__link"
+                    aria-current={path === item.href ? 'page' : undefined}
+                  >
+                    <span class="mega__link-label">
+                      {item.label}
+                      <Icon name="arrow" size={16} class="mega__link-arrow" />
+                    </span>
+                    <span class="mega__link-note">{item.note}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+      <p class="mega__foot micro">{SITE.tagline}</p>
+    </div>
+  </div>
+</header>
+
+<style>
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(7, 9, 13, 0.82);
+    backdrop-filter: saturate(160%) blur(14px);
+    border-bottom: 1px solid var(--rp-hairline);
+  }
+  .bar__inner {
+    height: var(--bar-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    transition: height 240ms var(--ease-out);
+  }
+  :global(.bar.is-condensed) .bar__inner { height: var(--bar-condensed); }
+
+  .bar__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 13px; /* nav contract: gap_left */
+    text-decoration: none;
+    min-height: 44px;
+  }
+  .bar__seal { width: 34px; height: 34px; object-fit: contain; }
+  :global(.bar.is-condensed) .bar__seal { width: 32px; height: 32px; }
+
+  .bar__name {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    color: var(--rp-heading);
+    white-space: nowrap;
+  }
+  /* accent on the second word: 20px/700 is above the 18.66px bold threshold,
+     so 3:1 applies and #3F6EE9 passes at 4.38:1 */
+  .bar__name-accent { color: var(--rp-accent); }
+
+  .bar__actions { display: flex; align-items: center; gap: 16px; }
+  .bar__menu { padding-inline: var(--space-5); }
+  .bar__close-icon { display: none; }
+  .bar__menu[aria-expanded='true'] { border-color: var(--rp-accent); }
+  .bar__menu[aria-expanded='true'] .bar__menu-icon { display: none; }
+  .bar__menu[aria-expanded='true'] .bar__close-icon { display: block; }
+
+  @media (max-width: 560px) {
+    .bar__name { font-size: 17px; }
+    .bar__cta { padding-inline: var(--space-5); font-size: 0.875rem; }
+    .bar__menu span[data-menu-label] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .bar__menu { padding-inline: var(--space-4); }
+  }
+
+  /* mega menu ------------------------------------------------------------ */
+  .mega {
+    border-top: 1px solid var(--rp-hairline);
+    background: var(--rp-surface);
+    max-height: calc(100dvh - var(--bar-height));
+    overflow-y: auto;
+  }
+  .mega__inner { padding-block: var(--space-8) var(--space-7); }
+  .mega__grid { display: grid; gap: var(--space-8); }
+  @media (min-width: 860px) { .mega__grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-9); } }
+
+  .mega__title { margin-bottom: var(--space-5); color: #8AA6F2; }
+  .mega__list { list-style: none; padding: 0; display: grid; gap: var(--space-2); }
+
+  .mega__link {
+    display: grid;
+    gap: 2px;
+    padding: var(--space-3) var(--space-4);
+    margin-inline: calc(var(--space-4) * -1);
+    border-radius: var(--radius-control);
+    text-decoration: none;
+    min-height: 44px;
+    transition: background-color 200ms var(--ease-out);
+  }
+  .mega__link:hover { background: var(--rp-raised); }
+  .mega__link[aria-current='page'] { background: rgba(63, 110, 233, 0.14); }
+
+  .mega__link-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--rp-heading);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    letter-spacing: -0.015em;
+  }
+  .mega__link-arrow { opacity: 0; transform: translateX(-4px); transition: opacity 200ms var(--ease-out), transform 200ms var(--ease-out); }
+  .mega__link:hover .mega__link-arrow { opacity: 1; transform: none; }
+  .mega__link-note { color: var(--rp-muted); font-size: 0.875rem; line-height: 1.5; }
+
+  .mega__foot {
+    margin-top: var(--space-8);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rp-hairline);
+  }
+</style>
+
+<script>
+  const bar = document.querySelector('[data-bar]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const panel = document.querySelector<HTMLElement>('[data-menu-panel]');
+
+  if (toggle && panel && bar) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      panel.hidden = !open;
+      document.documentElement.style.overflow = open ? 'hidden' : '';
+    };
+
+    toggle.addEventListener('click', () => {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+
+    // Close when focus leaves the header entirely, so keyboard users are not trapped.
+    document.addEventListener('focusin', (e) => {
+      if (toggle.getAttribute('aria-expanded') === 'true' && !bar.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    });
+
+    const onScroll = () => bar.classList.toggle('is-condensed', window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+</script>

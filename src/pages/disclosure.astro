@@ -1,0 +1,105 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { DISCLOSURE, PROVIDERS } from '../lib/routes';
+import { SITE } from '../lib/site';
+
+const commitments = [
+  { term: 'We state the relationship before you engage', def: 'Any affiliated company we recommend is identified as affiliated at the point of recommendation — not in a footnote discovered afterwards.' },
+  { term: 'We publish the routing table', def: 'The mapping from diagnosed constraint to likely provider is public. You can inspect which conclusions lead to which of our companies before you start.' },
+  { term: 'Outside specialists are a real outcome', def: 'When nobody in the portfolio fits, we say so. We can recommend or help source an independent specialist, and any referral or commercial arrangement with them is disclosed before engagement.' },
+  { term: '“No purchase yet” is a permitted conclusion', def: 'The analysis is explicitly allowed to recommend an internal action, more evidence, or nothing at all. A diagnosis that can never say “do not buy” is not a diagnosis.' },
+  { term: 'We do not manufacture urgency', def: 'If the cost of waiting is low, we will tell you that, even where it costs us the engagement.' },
+  { term: 'Regulated matters go to licensed professionals', def: 'Legal, medical, financial, safety and other regulated questions require appropriate qualified professionals. We can route the business-system aspects around them; we do not substitute for them.' },
+];
+---
+<Base
+  title="Relationship Disclosure"
+  description="Variety Portal discloses every affiliated-company and referral relationship before engagement. This is the standing policy and the full list of affiliated companies."
+>
+  <section class="lead">
+    <div class="shell lead__inner">
+      <p class="micro eyebrow">Trust architecture</p>
+      <h1 class="display">Relationship disclosure.</h1>
+      <p class="lede statement">{DISCLOSURE}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">What that means in practice</p>
+        <h2 class="h2">Six commitments.</h2>
+      </div>
+      <dl class="dl commitments" data-reveal>
+        {commitments.map((c) => (<div><dt>{c.term}</dt><dd>{c.def}</dd></div>))}
+      </dl>
+    </div>
+  </section>
+
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">The full list</p>
+        <h2 class="h2">Companies affiliated with Variety Portal.</h2>
+        <p class="lede">
+          Every company below shares ownership or commercial interest with Variety Portal. When one of
+          them is recommended, that fact is stated at the point of recommendation.
+        </p>
+      </div>
+      <ul class="chips affiliates" data-reveal>
+        {PROVIDERS.filter((p) => p.affiliated).map((p) => (
+          <li class="chip"><Icon name={p.icon} size={16} />{p.name}</li>
+        ))}
+      </ul>
+      <p data-reveal class="affiliates__link">
+        <a class="btn btn--ghost" href="/affiliated-companies">
+          See the constraint-to-provider routing table
+          <Icon name="arrow" size={18} class="arrow" />
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">Scope of advice</p>
+        <h2 class="h2">What Variety Portal is not.</h2>
+      </div>
+      <div class="stack-6" data-reveal>
+        <p>
+          The Problem Route Scan is a preliminary business intake. Neither it nor the 216-Path
+          Business Assessment constitutes legal, financial, medical, accounting, tax or other
+          regulated professional advice, and neither should be relied on as a substitute for a
+          qualified licensed professional in those domains.
+        </p>
+        <p>
+          Where a situation touches a regulated matter, we will identify which parts we can route as
+          business-system questions and which require a licensed professional, and we will say so
+          plainly rather than proceeding around it.
+        </p>
+        <p class="note">
+          Questions about a specific relationship, or about how a recommendation was reached, can be
+          raised at any point before or during an engagement.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lead { padding-block: var(--space-10) var(--space-9); }
+  .lead__inner > * + * { margin-top: var(--space-5); }
+  .statement {
+    border-left: 2px solid var(--rp-accent);
+    padding-left: var(--space-6);
+    max-width: 70ch;
+    margin-top: var(--space-7);
+  }
+  .commitments { margin-top: var(--space-9); }
+  .affiliates { margin-top: var(--space-8); gap: var(--space-3); }
+  .affiliates .chip { padding: var(--space-3) var(--space-5); }
+  .affiliates :global(svg) { color: #8AA6F2; }
+  .affiliates__link { margin-top: var(--space-8); }
+</style>

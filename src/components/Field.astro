@@ -1,0 +1,223 @@
+---
+/**
+ * One intake control. Every field carries a visible, persistent label
+ * (rule form.label — never placeholder-only). Errors name the field, the
+ * problem and the correction, with an icon as well as colour (form.error,
+ * form.error-color). Submitted values are echoed back (form.preserve).
+ */
+import type { Field } from '../lib/scan-schema';
+import Icon from './Icon.astro';
+
+interface Props { field: Field; value?: string; error?: string }
+const { field, value = '', error } = Astro.props;
+
+const id = `f-${field.name}`;
+const errId = `${id}-error`;
+const helpId = `${id}-help`;
+const help = 'help' in field ? field.help : undefined;
+const describedBy = [help ? helpId : null, error ? errId : null].filter(Boolean).join(' ') || undefined;
+---
+{field.kind === 'checkbox' ? (
+  <div class="field field--opt">
+    <label class="optin">
+      <input type="checkbox" name={field.name} value="yes" checked={value === 'yes'} />
+      <span class="optin__box"><Icon name="check" size={14} /></span>
+      <span class="optin__text">
+        <span class="optin__label">{field.label}</span>
+        {help && <span class="optin__help">{help}</span>}
+      </span>
+    </label>
+  </div>
+) : field.kind === 'radio' ? (
+  <fieldset class:list={['field', 'field--choice', error && 'field--invalid']}>
+    <legend class="field__label">
+      {field.label}
+      {!field.required && <span class="field__optional"> (optional)</span>}
+    </legend>
+    {help && <p class="field__help" id={helpId}>{help}</p>}
+    {error && (
+      <p class="field__error" id={errId}>
+        <Icon name="alert" size={16} />
+        <span>{error}</span>
+      </p>
+    )}
+    <div class="choices">
+      {field.choices.map((choice, i) => (
+        <label class="choice">
+          <input
+            type="radio"
+            name={field.name}
+            value={choice.value}
+            checked={value === choice.value}
+            required={field.required && i === 0}
+            aria-describedby={describedBy}
+          />
+          <span class="choice__box"><Icon name="check" size={14} /></span>
+          <span class="choice__text">{choice.label}</span>
+        </label>
+      ))}
+    </div>
+  </fieldset>
+) : (
+  <div class:list={['field', error && 'field--invalid']}>
+    <label class="field__label" for={id}>
+      {field.label}
+      {!field.required && <span class="field__optional"> (optional)</span>}
+    </label>
+    {help && <p class="field__help" id={helpId}>{help}</p>}
+    {error && (
+      <p class="field__error" id={errId}>
+        <Icon name="alert" size={16} />
+        <span>{error}</span>
+      </p>
+    )}
+    {field.kind === 'textarea' ? (
+      <textarea
+        id={id}
+        name={field.name}
+        rows={field.rows ?? 4}
+        maxlength={field.maxLength}
+        required={field.required}
+        aria-describedby={describedBy}
+        aria-invalid={error ? 'true' : undefined}
+        class="control"
+      >{value}</textarea>
+    ) : (
+      <input
+        id={id}
+        type={field.kind}
+        name={field.name}
+        value={value}
+        maxlength={field.maxLength}
+        required={field.required}
+        autocomplete={'autocomplete' in field ? field.autocomplete : undefined}
+        aria-describedby={describedBy}
+        aria-invalid={error ? 'true' : undefined}
+        class="control"
+      />
+    )}
+  </div>
+)}
+
+<style>
+  .field { border: 0; padding: 0; margin: 0; display: block; }
+  .field + :global(.field) { margin-top: var(--space-8); }
+
+  .field__label {
+    display: block;
+    color: var(--rp-heading);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    letter-spacing: -0.015em;
+    line-height: 1.4;
+    margin-bottom: var(--space-2);
+    padding: 0;
+  }
+  .field__optional { color: var(--rp-muted); font-weight: 400; font-size: 0.9375rem; }
+  .field__help { color: var(--rp-muted); font-size: 0.875rem; margin-bottom: var(--space-4); max-width: 62ch; }
+
+  .field__error {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    color: #F0938C;               /* 7.1:1 on canvas — danger tint that passes AA */
+    font-size: 0.875rem;
+    margin-bottom: var(--space-4);
+    max-width: 62ch;
+  }
+  .field__error :global(svg) { flex: none; margin-top: 3px; }
+
+  /* text controls --------------------------------------------------------- */
+  .control {
+    width: 100%;
+    min-height: 48px;
+    padding: var(--space-3) var(--space-4);
+    background: var(--rp-canvas);
+    border: 1px solid var(--rp-hairline);
+    border-radius: var(--radius-control);
+    color: var(--rp-heading);
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1.6;
+    transition: border-color 180ms var(--ease-out), background-color 180ms var(--ease-out);
+  }
+  textarea.control { resize: vertical; min-height: 120px; }
+  .control:hover { border-color: rgba(245, 247, 250, 0.3); }
+  .control:focus { border-color: #8AA6F2; background: var(--rp-raised); }
+  .field--invalid .control { border-color: #D8574F; }
+
+  /* choices ---------------------------------------------------------------- */
+  .choices { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+  @media (min-width: 760px) { .choices { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  .choice {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: var(--space-4);
+    align-items: start;
+    min-height: 48px;
+    padding: var(--space-4) var(--space-5);
+    background: var(--rp-canvas);
+    border: 1px solid var(--rp-hairline);
+    border-radius: var(--radius-control);
+    cursor: pointer;
+    transition: border-color 180ms var(--ease-out), background-color 180ms var(--ease-out);
+  }
+  .choice:hover { border-color: rgba(245, 247, 250, 0.3); background: var(--rp-raised); }
+
+  .choice input {
+    position: absolute;
+    opacity: 0;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+  }
+  .choice__box {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--rp-hairline);
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+    color: transparent;
+    transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out), color 160ms var(--ease-out);
+  }
+  .choice__text { color: var(--rp-body); font-size: 0.9375rem; line-height: 1.5; }
+
+  .choice:has(input:checked) { border-color: var(--rp-accent); background: rgba(63, 110, 233, 0.12); }
+  .choice:has(input:checked) .choice__box { background: var(--rp-accent); border-color: var(--rp-accent); color: #FFFFFF; }
+  .choice:has(input:checked) .choice__text { color: var(--rp-heading); }
+  .choice:has(input:focus-visible) { outline: 2px solid #8AA6F2; outline-offset: 3px; }
+
+  /* opt-in checkbox --------------------------------------------------------- */
+  .field--opt { margin-top: var(--space-8); padding-top: var(--space-7); border-top: 1px solid var(--rp-hairline); }
+  .optin {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: var(--space-4);
+    align-items: start;
+    padding: var(--space-5);
+    background: var(--rp-canvas);
+    border: 1px solid var(--rp-hairline);
+    border-radius: var(--radius-control);
+    cursor: pointer;
+    min-height: 48px;
+    transition: border-color 180ms var(--ease-out), background-color 180ms var(--ease-out);
+  }
+  .optin:hover { border-color: rgba(245, 247, 250, 0.3); }
+  .optin input { position: absolute; opacity: 0; width: 22px; height: 22px; margin: 0; }
+  .optin__box {
+    width: 22px; height: 22px; border-radius: var(--radius-control);
+    border: 1px solid var(--rp-hairline);
+    display: grid; place-items: center; margin-top: 1px;
+    color: transparent;
+    transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out), color 160ms var(--ease-out);
+  }
+  .optin__text { display: grid; gap: var(--space-2); }
+  .optin__label { color: var(--rp-heading); font-weight: 600; font-size: 0.9375rem; line-height: 1.45; }
+  .optin__help { color: var(--rp-muted); font-size: 0.875rem; line-height: 1.55; }
+  .optin:has(input:checked) { border-color: var(--rp-accent); background: rgba(63, 110, 233, 0.12); }
+  .optin:has(input:checked) .optin__box { background: var(--rp-accent); border-color: var(--rp-accent); color: #FFFFFF; }
+  .optin:has(input:focus-visible) { outline: 2px solid #8AA6F2; outline-offset: 3px; }
+</style>

@@ -1,0 +1,212 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Lattice from '../components/Lattice.astro';
+import { DISCLOSURE } from '../lib/routes';
+
+const whenToUse = [
+  'Multiple providers recommend different solutions',
+  'Previous attempts failed or produced temporary results',
+  'The problem crosses brand, marketing, sales, operations or technology',
+  'The next decision is expensive or difficult to reverse',
+  'The team cannot agree on the cause',
+  'The business is buying activity without progress',
+  'You need to know what should happen first',
+];
+
+const deliverables = [
+  'Refined problem statement', 'System and stakeholder map', 'Symptom-versus-constraint analysis',
+  'Hidden assumptions', 'Alternative explanations', '216-state discovery output',
+  'Evidence and uncertainty register', 'Intervention comparison',
+  'Urgency, reversibility and cost analysis', 'Smallest sufficient intervention',
+  'Recommended provider criteria', 'Disclosed routing recommendation',
+  '30-day evidence plan', 'Stop conditions and review date',
+];
+
+const process = [
+  { title: 'Scope', body: 'Define the question, decision, stakeholders, evidence and constraints.' },
+  { title: 'Decompose', body: 'Map objects, conditions, actions, tools, resources, dependencies and outcomes.' },
+  { title: 'Generate', body: 'Use morphological variety to expose paths the current framing excludes.' },
+  { title: 'Filter', body: 'Remove paths that fail evidence, feasibility, risk, cost, time or strategic-fit tests.' },
+  { title: 'Recommend', body: 'Select a first move and explain why it precedes the alternatives.' },
+  { title: 'Route', body: 'Define the internal owner, affiliated company or outside specialist required.' },
+];
+
+const levels = [
+  {
+    id: 'focused', icon: 'target', name: 'Focused Assessment', price: '$497 – $1,500',
+    scope: 'One primary question, limited stakeholders and a concise decision brief.',
+    fit: 'A single expensive decision where the cause is contested but the scope is contained.',
+  },
+  {
+    id: 'executive', icon: 'scale', name: 'Executive Decision Brief', price: '$2,500 – $7,500',
+    scope: 'High-stakes or cross-functional decision with interviews, evidence review, scenarios and executive presentation.',
+    fit: 'Irreversible, politically difficult, or requiring several stakeholders to agree before it can proceed.',
+  },
+  {
+    id: 'stewardship', icon: 'review', name: 'Routing Stewardship', price: '$500 – $2,500 / month',
+    scope: 'Recurring constraint review, provider coordination and reallocation as evidence changes.',
+    fit: 'Businesses whose constraints keep moving, and who are coordinating more than one provider.',
+  },
+];
+---
+<Base
+  title="216-Path Business Assessment"
+  description="Replace conflicting advice with a defensible first move. The 216-Path Business Assessment decomposes the problem, challenges the current diagnosis, compares alternative interventions and recommends the smallest action likely to produce useful evidence."
+>
+  <section class="lead">
+    <Lattice intensity="high" />
+    <div class="shell lead__inner">
+      <p class="micro eyebrow">Human-reviewed business diagnosis</p>
+      <h1 class="display">Replace conflicting advice with a defensible first move.</h1>
+      <p class="lede">
+        The 216-Path Business Assessment decomposes the problem, challenges the current diagnosis,
+        compares alternative interventions and recommends the smallest action likely to produce
+        useful evidence.
+      </p>
+      <div class="btn-row lead__cta">
+        <a class="btn btn--primary btn--lg" href="/scan" data-event="scan_start">
+          Apply for an assessment
+          <Icon name="arrow" size={18} class="arrow" />
+        </a>
+        <a class="btn btn--ghost btn--lg" href="/sample-decision-brief">View a sample decision brief</a>
+      </div>
+      <p class="lead__note micro">Every assessment begins with the free Problem Route Scan — it is how we scope it honestly.</p>
+    </div>
+  </section>
+
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="split">
+        <div class="section-head" data-reveal>
+          <p class="micro eyebrow">When to use it</p>
+          <h2 class="h2">Seven conditions that justify a structured diagnosis.</h2>
+          <p>If none of these describe you, the scan will say so and you should not buy this.</p>
+        </div>
+        <ul class="ticks" data-reveal>
+          {whenToUse.map((w) => (<li><Icon name="check" /><span>{w}</span></li>))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">Process</p>
+        <h2 class="h2">Six stages, in this order.</h2>
+      </div>
+      <ol class="steps process" data-reveal>
+        {process.map((p) => (
+          <li>
+            <h3 class="h4 step-title">{p.title}</h3>
+            <p>{p.body}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">Deliverables</p>
+        <h2 class="h2">Fourteen artefacts you can hand to someone else.</h2>
+        <p class="lede">
+          The brief is written so a stakeholder who was not in the room can evaluate the reasoning,
+          not just the conclusion.
+        </p>
+      </div>
+      <ul class="ticks deliverables" data-reveal>
+        {deliverables.map((d) => (<li><Icon name="check" /><span>{d}</span></li>))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="stewardship">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">Pricing framework</p>
+        <h2 class="h2">Three levels, scoped to the decision.</h2>
+        <p class="lede">
+          These are the ranges engagements typically fall within. The scan and the routing
+          consultation determine which level applies before anything is quoted — we do not price
+          before we understand the question.
+        </p>
+      </div>
+
+      <div class="table-scroll levels" data-reveal>
+        <table>
+          <caption>Suggested ranges by assessment level. Final scope and price are confirmed at the routing consultation.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Level</th><th scope="col">Suggested range</th>
+              <th scope="col">Scope</th><th scope="col">When it fits</th>
+            </tr>
+          </thead>
+          <tbody>
+            {levels.map((l) => (
+              <tr>
+                <th scope="row">
+                  <span class="levels__name"><Icon name={l.icon} size={18} />{l.name}</span>
+                </th>
+                <td class="tnum levels__price">{l.price}</td>
+                <td>{l.scope}</td>
+                <td>{l.fit}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">Relationship disclosure</p>
+        <h2 class="h3">We tell you who we are related to, before you engage them.</h2>
+      </div>
+      <p class="note disclosure" data-reveal>{DISCLOSURE}</p>
+    </div>
+  </section>
+
+  <section class="section center">
+    <div class="shell">
+      <h2 class="h2" data-reveal>Do not fund another solution until the first move is clear.</h2>
+      <p class="btn-row cta" data-reveal>
+        <a class="btn btn--primary btn--lg" href="/scan" data-event="scan_start">
+          Apply for the 216-Path Assessment
+          <Icon name="arrow" size={18} class="arrow" />
+        </a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lead { position: relative; overflow: hidden; padding-block: var(--space-10) var(--space-9); }
+  .lead__inner { position: relative; }
+  .lead__inner > * + * { margin-top: var(--space-5); }
+  .lead h1 { max-width: 16ch; }
+  .lead__cta { margin-top: var(--space-7); }
+  .lead__note { margin-top: var(--space-5); }
+
+  .split { display: grid; gap: var(--space-8); }
+  @media (min-width: 960px) { .split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-10); align-items: start; } }
+
+  .process { margin-top: var(--space-9); }
+  @media (min-width: 860px) { .process { grid-template-columns: repeat(2, 1fr); gap: var(--space-7) var(--space-8); } }
+
+  .deliverables { margin-top: var(--space-9); }
+  @media (min-width: 620px) { .deliverables { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1040px) { .deliverables { grid-template-columns: repeat(3, 1fr); } }
+
+  .levels { margin-top: var(--space-9); }
+  .levels__name { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--rp-heading); }
+  .levels__name :global(svg) { color: #8AA6F2; flex: none; }
+  .levels__price { color: var(--rp-heading); font-weight: 600; white-space: nowrap; }
+
+  .disclosure { margin-top: var(--space-6); }
+  .cta { justify-content: center; margin-top: var(--space-7); }
+</style>

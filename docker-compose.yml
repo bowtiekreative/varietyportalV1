@@ -1,0 +1,56 @@
+services:
+  # Stack-unique service name. A bare `web`/`backend` would collide with other
+  # stacks through Dokploy's shared network aliases.
+  vp-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-https://varietyportal.com}
+        PUBLIC_GA_MEASUREMENT_ID: ${PUBLIC_GA_MEASUREMENT_ID:-}
+        PUBLIC_CONTACT_EMAIL: ${PUBLIC_CONTACT_EMAIL:-}
+        PUBLIC_BOOKING_URL: ${PUBLIC_BOOKING_URL:-}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4321
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-https://varietyportal.com}
+      MONGO_URL: mongodb://vp-mongo:27017
+      MONGO_DB: ${MONGO_DB:-varietyportal}
+      EMAILIT_URL: ${EMAILIT_URL:-https://api.emailit.com/v2/}
+      EMAILIT_API_KEY: ${EMAILIT_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      EMAIL_INTERNAL_TO: ${EMAIL_INTERNAL_TO:-}
+      CRON_SECRET: ${CRON_SECRET:-}
+    depends_on:
+      vp-mongo:
+        condition: service_healthy
+    networks:
+      - default
+      - dokploy-network
+
+  # Stack-private only: no Traefik route, so it never joins dokploy-network
+  # and its name cannot collide with another project's database.
+  vp-mongo:
+    image: mongo:7
+    restart: unless-stopped
+    command: ["--quiet", "--bind_ip_all"]
+    volumes:
+      - vp-mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    networks:
+      - default
+
+volumes:
+  vp-mongo-data:
+
+networks:
+  default:
+  dokploy-network:
+    external: true

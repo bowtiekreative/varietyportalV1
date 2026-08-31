@@ -1,0 +1,248 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Lattice from '../components/Lattice.astro';
+import { DISCLOSURE } from '../lib/routes';
+
+/**
+ * ILLUSTRATIVE SAMPLE. The company, figures and findings below are constructed
+ * to demonstrate the shape of the deliverable. They are labelled as such on the
+ * page itself (principle: honesty — sample data is labelled, never presented as
+ * a real client outcome).
+ */
+
+const alternatives = [
+  { cell: 'Why × Direct × All', hypothesis: 'Ad spend is too low across every channel.', status: 'Killed', why: 'Spend rose 40% year over year while qualified volume fell. More of the same input produced less output.' },
+  { cell: 'Why × Opposite × Many', hypothesis: 'Volume is fine; qualification is what changed.', status: 'Supported', why: 'Raw enquiries rose 12%. Enquiries meeting the stated fit criteria fell 31%.' },
+  { cell: 'Who × Other × One', hypothesis: 'A single unnamed actor sets the real conversion ceiling.', status: 'Plausible', why: 'One estimator handles every quote over $20k. Median quote turnaround is nine days.' },
+  { cell: 'What × Keep Same × All', hypothesis: 'The offer never changed while the market did.', status: 'Supported', why: 'Package definitions and price points are unchanged since 2023; two competitors repositioned in 2025.' },
+  { cell: 'When × Less Same × Partial', hypothesis: 'Follow-up decayed on part of the pipeline.', status: 'Plausible', why: 'First-response time on web enquiries moved from 4 hours to 31 hours after a staffing change.' },
+  { cell: 'How × Other × None', hypothesis: 'No mechanism exists to measure lead quality at all.', status: 'Supported', why: 'No field in the CRM records fit against the stated criteria. Quality is asserted, never recorded.' },
+];
+
+const interventions = [
+  { option: 'Rebuild the website', cost: 'High', reversibility: 'Low', evidence: '90+ days', verdict: 'Deferred — the site is not where qualification is failing.' },
+  { option: 'Increase ad spend', cost: 'Medium', reversibility: 'High', evidence: '30 days', verdict: 'Rejected — amplifies an unqualified input.' },
+  { option: 'Reposition the offer', cost: 'Medium', reversibility: 'Medium', evidence: '60–90 days', verdict: 'Second move — needs the measurement below to target it.' },
+  { option: 'Instrument lead quality', cost: 'Low', reversibility: 'High', evidence: '14–21 days', verdict: 'Recommended first move.' },
+  { option: 'Restructure the estimating queue', cost: 'Low', reversibility: 'High', evidence: '30 days', verdict: 'Parallel — cheap, independent, and testable.' },
+];
+
+const evidencePlan = [
+  'Add a fit-criteria field to every inbound record, scored at intake by the person who takes it.',
+  'Record first-response time automatically rather than by self-report.',
+  'Segment the last 90 days retrospectively using the same criteria to establish a baseline.',
+  'Review at day 21 with a single question: did qualified volume move, or only total volume?',
+];
+
+const stopConditions = [
+  'If qualified volume is flat at day 21 but total volume rose, the constraint is upstream in positioning — proceed to the offer work, not the website.',
+  'If qualified volume rose and close rate did not, the constraint has moved to sales response — stop marketing work entirely.',
+  'If the estimating queue change alone recovers close rate, no repositioning is funded this quarter.',
+];
+---
+<Base
+  title="Sample Decision Brief"
+  description="An illustrative example of the 216-Path Business Assessment output: problem statement, alternative explanations, intervention comparison, recommended first move, evidence plan and stop conditions."
+>
+  <section class="lead">
+    <Lattice intensity="low" />
+    <div class="shell lead__inner">
+      <p class="micro eyebrow">Sample output</p>
+      <h1 class="display">A recommendation you can evaluate before you buy.</h1>
+      <p class="lede">
+        This is the shape of a Focused Assessment brief. Read it for the structure of the reasoning —
+        the point of the deliverable is that someone who was not in the room can check the logic, not
+        just accept the conclusion.
+      </p>
+
+      <div class="flag" role="note">
+        <span class="icon-frame flag__icon"><Icon name="alert" /></span>
+        <p>
+          <strong>Illustrative sample.</strong> &ldquo;Northline Mechanical&rdquo; is a constructed
+          example. The company, figures and findings are written to demonstrate the format of the
+          deliverable and are not a real client engagement or a claimed result.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <article class="section brief">
+    <div class="shell">
+      <section class="brief__block" data-reveal>
+        <h2 class="micro">01 · Problem statement</h2>
+        <p class="lede">
+          Northline Mechanical believes it has a lead-generation problem. Over twelve months, total
+          enquiries rose while closed revenue fell. Three providers have proposed three different
+          solutions: a website rebuild, an increase in paid media, and a CRM replacement.
+        </p>
+        <p>
+          <strong>The decision question:</strong> which single intervention should be funded first,
+          and what evidence would show within 30 days whether it was the right one?
+        </p>
+      </section>
+
+      <section class="brief__block" data-reveal>
+        <h2 class="micro">02 · Symptom versus constraint</h2>
+        <dl class="dl">
+          <div><dt>Reported symptom</dt><dd>&ldquo;We are not getting enough leads.&rdquo;</dd></div>
+          <div><dt>Measured reality</dt><dd>Enquiry volume is up 12%. Enquiries meeting the company's own stated fit criteria are down 31%.</dd></div>
+          <div><dt>Restated constraint</dt><dd>The business cannot distinguish a qualified enquiry from an unqualified one at the point of intake, so it cannot tell which of its inputs is working.</dd></div>
+        </dl>
+      </section>
+
+      <section class="brief__block" data-reveal>
+        <h2 class="micro">03 · Hidden assumptions</h2>
+        <ul class="ticks">
+          <li><Icon name="check" /><span>That &ldquo;lead&rdquo; means the same thing to marketing and to the estimating team. It does not.</span></li>
+          <li><Icon name="check" /><span>That the 2023 offer definition still matches what the market is buying in 2026.</span></li>
+          <li><Icon name="check" /><span>That response time is stable because nobody has reported it changing.</span></li>
+        </ul>
+      </section>
+
+      <section class="brief__block" data-reveal>
+        <h2 class="micro">04 · Alternative explanations from the 216-state discovery</h2>
+        <p>Six of the surviving cells, with the evidence that killed or supported each.</p>
+        <div class="table-scroll">
+          <table>
+            <caption>Illustrative sample. Cell coordinates follow the interrogative × modifier × scale axes.</caption>
+            <thead>
+              <tr><th scope="col">Cell</th><th scope="col">Hypothesis</th><th scope="col">Status</th><th scope="col">Evidence</th></tr>
+            </thead>
+            <tbody>
+              {alternatives.map((r) => (
+                <tr>
+                  <th scope="row" class="cell">{r.cell}</th>
+                  <td>{r.hypothesis}</td>
+                  <td>
+                    <span class:list={['status', `status--${r.status.toLowerCase()}`]}>
+                      <Icon name={r.status === 'Killed' ? 'close' : r.status === 'Supported' ? 'check' : 'clock'} size={14} />
+                      {r.status}
+                    </span>
+                  </td>
+                  <td>{r.why}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="brief__block" data-reveal>
+        <h2 class="micro">05 · Intervention comparison</h2>
+        <div class="table-scroll">
+          <table>
+            <caption>Illustrative sample. Time-to-evidence is the interval before the option can be judged.</caption>
+            <thead>
+              <tr><th scope="col">Option</th><th scope="col">Cost</th><th scope="col">Reversibility</th><th scope="col">Time to evidence</th><th scope="col">Verdict</th></tr>
+            </thead>
+            <tbody>
+              {interventions.map((r) => (
+                <tr>
+                  <th scope="row">{r.option}</th>
+                  <td>{r.cost}</td><td>{r.reversibility}</td><td class="tnum">{r.evidence}</td>
+                  <td>{r.verdict}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="brief__block brief__block--accent" data-reveal>
+        <h2 class="micro">06 · Smallest sufficient intervention</h2>
+        <p class="h3 brief__move">
+          Instrument lead quality at intake before funding anything that claims to improve it.
+        </p>
+        <p>
+          It costs the least, reverses freely, and is the only option that makes every other option
+          measurable. Two of the three proposals on the table may still be correct — but neither can
+          be evaluated until this exists, and funding them first means paying for an answer you
+          cannot read.
+        </p>
+      </section>
+
+      <section class="brief__block" data-reveal>
+        <h2 class="micro">07 · 30-day evidence plan</h2>
+        <ol class="steps">
+          {evidencePlan.map((s) => (<li><p>{s}</p></li>))}
+        </ol>
+      </section>
+
+      <section class="brief__block" data-reveal>
+        <h2 class="micro">08 · Stop conditions and review date</h2>
+        <ul class="ticks">
+          {stopConditions.map((s) => (<li><Icon name="alert" /><span>{s}</span></li>))}
+        </ul>
+        <p class="brief__review">Review date: day 21. Decision to fund the second move is not taken before it.</p>
+      </section>
+
+      <section class="brief__block" data-reveal>
+        <h2 class="micro">09 · Routing recommendation and disclosure</h2>
+        <p>
+          The recommended first move is internal — no provider is required to instrument intake. If
+          the day-21 evidence supports repositioning, the route would be a brand and offer
+          specialist; if it supports sales response, a growth-execution provider.
+        </p>
+        <p class="note">{DISCLOSURE}</p>
+      </section>
+    </div>
+  </article>
+
+  <section class="section section--surface section--hairline center">
+    <div class="shell">
+      <h2 class="h2" data-reveal>Your brief starts with a five-minute scan.</h2>
+      <p class="btn-row cta" data-reveal>
+        <a class="btn btn--primary btn--lg" href="/scan" data-event="scan_start">
+          Start the Problem Route Scan
+          <Icon name="arrow" size={18} class="arrow" />
+        </a>
+        <a class="btn btn--ghost btn--lg" href="/assessment">See assessment levels</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lead { position: relative; overflow: hidden; padding-block: var(--space-10) var(--space-9); }
+  .lead__inner { position: relative; }
+  .lead__inner > * + * { margin-top: var(--space-5); }
+  .lead h1 { max-width: 18ch; }
+
+  .flag {
+    display: grid; grid-template-columns: 44px 1fr; gap: var(--space-5);
+    padding: var(--space-6); margin-top: var(--space-8);
+    border: 1px solid var(--rp-warning);
+    background: rgba(201, 138, 46, 0.09);
+    border-radius: var(--radius-card);
+    max-width: 72ch;
+  }
+  .flag__icon { background: rgba(201, 138, 46, 0.16); border-color: rgba(201, 138, 46, 0.4); color: #E3B061; }
+  .flag p { font-size: 0.9375rem; }
+
+  .brief__block { padding-block: var(--space-9); border-bottom: 1px solid var(--rp-hairline); }
+  .brief__block:first-child { border-top: 1px solid var(--rp-hairline); }
+  .brief__block > * + * { margin-top: var(--space-5); }
+  .brief__block h2 { color: #8AA6F2; }
+
+  .brief__block--accent {
+    background: var(--rp-surface);
+    border: 1px solid rgba(63, 110, 233, 0.4);
+    border-radius: var(--radius-panel);
+    padding: var(--space-8);
+    margin-block: var(--space-9);
+  }
+  @media (min-width: 900px) { .brief__block--accent { padding: var(--space-9); } }
+  .brief__move { color: var(--rp-heading); max-width: 26ch; }
+
+  .cell { color: #8AA6F2; white-space: nowrap; font-weight: 600; font-size: 0.8125rem; }
+
+  /* status is never colour-only — an icon and the word both carry it */
+  .status { display: inline-flex; align-items: center; gap: var(--space-2); white-space: nowrap; font-weight: 600; font-size: 0.8125rem; }
+  .status--killed { color: #F0938C; }
+  .status--supported { color: #6FCB96; }
+  .status--plausible { color: #E3B061; }
+
+  .brief__review { color: var(--rp-heading); font-weight: 600; }
+  .cta { justify-content: center; margin-top: var(--space-7); }
+</style>

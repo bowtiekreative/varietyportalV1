@@ -1,0 +1,220 @@
+---
+export const prerender = false;
+
+import Base from '../../../layouts/Base.astro';
+import Icon from '../../../components/Icon.astro';
+import Lattice from '../../../components/Lattice.astro';
+import { scans } from '../../../lib/db';
+import { ROUTE_COPY, TIER_COPY, type RouteId, type Tier } from '../../../lib/scoring';
+import { PROVIDERS, DISCLOSURE } from '../../../lib/routes';
+import { labelFor } from '../../../lib/scan-schema';
+
+const { token } = Astro.params;
+
+const col = await scans();
+const record = col && token ? await col.findOne({ token }) : null;
+
+if (!record) {
+  return Astro.redirect('/scan?expired=1', 302);
+}
+
+const a = record.assessment;
+const route = ROUTE_COPY[a.route as RouteId] ?? ROUTE_COPY.ambiguous;
+const tier = TIER_COPY[a.tier as Tier] ?? TIER_COPY.B;
+const providers = PROVIDERS.filter((p) => a.providerIds.includes(p.id));
+const firstName = (record.answers.name ?? '').split(/\s+/)[0] || 'there';
+---
+<Base
+  title="Your preliminary route"
+  description="The preliminary route produced by your Problem Route Scan."
+  noindex={true}
+>
+  <section class="result">
+    <Lattice intensity="low" />
+    <div class="shell result__inner">
+      <p class="micro eyebrow">{route.eyebrow}</p>
+      <h1 class="h2">{route.heading}</h1>
+      <p class="lede">{route.body}</p>
+
+      <div class="result__meta">
+        <p class="micro">
+          Scan for {record.answers.company || 'your company'} · symptom:
+          {' '}{labelFor('symptom', record.answers.symptom ?? '')}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {a.regulated && (
+    <section class="section section--tight">
+      <div class="shell">
+        <div class="flag">
+          <span class="icon-frame flag__icon"><Icon name="alert" /></span>
+          <div>
+            <h2 class="h4">This touches a regulated matter</h2>
+            <p>
+              Variety Portal routes business-system problems. It does not provide legal, medical,
+              financial, safety or other regulated professional advice, and it will not attempt to
+              substitute for a qualified licensed professional. We will tell you plainly which parts
+              of your situation we can route and which we cannot.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- what happens next -->
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="split">
+        <div class="section-head">
+          <p class="micro eyebrow">{tier.eyebrow}</p>
+          <h2 class="h2">{tier.heading}</h2>
+        </div>
+        <div class="stack-6">
+          <p>{tier.body}</p>
+          <p class="note">{route.next}</p>
+
+          {a.tier === 'A' && (
+            <div class="confirm">
+              <h3 class="micro">The routing consultation will confirm</h3>
+              <ul class="ticks confirm__list">
+                {['The decision question', 'Stakeholders', 'Available evidence', 'Scope and assessment level', 'Deadline', 'Deliverable', 'Commercial relationships and disclosures'].map((i) => (
+                  <li><Icon name="check" /><span>{i}</span></li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <a class="btn btn--primary btn--lg" href={`${tier.href}${tier.href === '/book' ? `?scan=${record.token}` : ''}`} data-event="booking_start">
+            {tier.cta}
+            <Icon name="arrow" size={18} class="arrow" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- how we read the answers: the score is shown, not hidden -->
+  <section class="section">
+    <div class="shell">
+      <div class="section-head">
+        <p class="micro eyebrow">How we read your answers</p>
+        <h2 class="h2">Nine dimensions, scored 0 to 2.</h2>
+        <p class="lede">
+          This is the qualification framework itself, not a marketing score. It decides how much
+          diagnosis your situation warrants — including the possibility that the answer is
+          &ldquo;not much yet&rdquo;.
+        </p>
+      </div>
+
+      <div class="table-scroll score">
+        <table>
+          <caption>
+            Preliminary qualification for {record.answers.company || 'your company'}. Total
+            {' '}<strong class="tnum">{a.total} of {a.max}</strong>. Scored from your scan answers on
+            {' '}{new Date(record.createdAt).toISOString().slice(0, 10)}.
+          </caption>
+          <thead>
+            <tr><th scope="col">Dimension</th><th scope="col">Score</th><th scope="col">What your answers indicated</th></tr>
+          </thead>
+          <tbody>
+            {a.dimensions.map((d) => (
+              <tr>
+                <th scope="row">{d.label}</th>
+                <td class="tnum score__val">{d.score} / 2</td>
+                <td>{d.why}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  {providers.length > 0 && (
+    <section class="section section--surface section--hairline">
+      <div class="shell">
+        <div class="section-head">
+          <p class="micro eyebrow">Candidate routes</p>
+          <h2 class="h2">Where this would most likely be routed.</h2>
+          <p class="lede">
+            Candidates only. Nothing is recommended until a person reviews the evidence — and the
+            assessment may conclude that none of these is the right first move.
+          </p>
+        </div>
+
+        <ul class="grid grid--3 providers">
+          {providers.map((p) => (
+            <li>
+              <article class="card">
+                <span class="icon-frame"><Icon name={p.icon} /></span>
+                <h3 class="h4">{p.name}</h3>
+                <p class="providers__disc">{p.discipline}</p>
+                <p class="providers__flag micro">
+                  {p.affiliated ? 'Affiliated with Variety Portal' : 'Independent — sourced for you'}
+                </p>
+              </article>
+            </li>
+          ))}
+        </ul>
+
+        <p class="note providers__note">{DISCLOSURE}</p>
+      </div>
+    </section>
+  )}
+
+  <section class="section">
+    <div class="shell center">
+      <h2 class="h3">We emailed a copy to {record.answers.email}.</h2>
+      <p class="lede">
+        Hi {firstName} — keep this page's link if you want to return to it. A person reviews every
+        scan before anything is recommended or sold.
+      </p>
+      <p class="btn-row result__foot">
+        <a class="btn btn--ghost" href="/sample-decision-brief">See a sample decision brief</a>
+        <a class="btn btn--ghost" href="/how-it-works">Read how the routing works</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  (window as any).vpTrack?.('scan_complete');
+  (window as any).vpTrack?.('route_viewed');
+</script>
+
+<style>
+  .result { position: relative; overflow: hidden; padding-block: var(--space-10) var(--space-9); }
+  .result__inner { position: relative; }
+  .result__inner > * + * { margin-top: var(--space-5); }
+  .result h1 { max-width: 20ch; }
+  .result__meta { margin-top: var(--space-7); padding-top: var(--space-5); border-top: 1px solid var(--rp-hairline); }
+
+  .flag {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: var(--space-5);
+    padding: var(--space-7);
+    border: 1px solid var(--rp-warning);
+    background: rgba(201, 138, 46, 0.09);
+    border-radius: var(--radius-card);
+  }
+  .flag__icon { background: rgba(201, 138, 46, 0.16); border-color: rgba(201, 138, 46, 0.4); color: #E3B061; }
+  .flag h2 { margin-bottom: var(--space-3); }
+
+  .split { display: grid; gap: var(--space-8); }
+  @media (min-width: 960px) { .split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-10); align-items: start; } }
+
+  .confirm__list { margin-top: var(--space-4); }
+  .score { margin-top: var(--space-9); }
+  .score__val { color: var(--rp-heading); font-weight: 600; white-space: nowrap; }
+
+  .providers { list-style: none; padding: 0; margin-top: var(--space-9); }
+  .providers__disc { font-size: 0.9375rem; }
+  .providers__flag { margin-top: auto; padding-top: var(--space-4); border-top: 1px solid var(--rp-hairline); }
+  .providers__note { margin-top: var(--space-8); font-size: 0.9375rem; }
+
+  .result__foot { justify-content: center; margin-top: var(--space-7); }
+</style>

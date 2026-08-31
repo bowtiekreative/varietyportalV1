@@ -1,0 +1,451 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Lattice from '../components/Lattice.astro';
+import RoutingField from '../components/RoutingField.astro';
+import { SITE } from '../lib/site';
+import { PROVIDERS, DISCLOSURE } from '../lib/routes';
+
+const protocol = [
+  { icon: 'stethoscope', title: 'Describe the symptom', body: 'Tell us what is happening, what you expected and what it is costing.' },
+  { icon: 'decompose', title: 'Decompose the system', body: 'We separate the people, objects, conditions, actions, tools, resources, dependencies and outcomes.' },
+  { icon: 'grid', title: 'Generate variety', body: 'The 6×6×6 engine explores 216 alternative states and paths.' },
+  { icon: 'filter', title: 'Eliminate poor fits', body: 'Options are tested against evidence, urgency, cost, reversibility, capacity and strategic fit.' },
+  { icon: 'target', title: 'Prescribe the first move', body: 'The recommendation explains what should happen, why it comes first and what evidence should result.' },
+  { icon: 'route', title: 'Route the work', body: 'When implementation is needed, we recommend an affiliated company, a coordinated combination or an outside specialist.' },
+];
+
+const symptoms = [
+  { icon: 'magnet', quote: 'We need more leads.', body: 'Possible constraints include positioning, offer, visibility, proof, conversion, follow-up, sales capacity or measurement.' },
+  { icon: 'monitor', quote: 'Our website is not working.', body: 'Possible constraints include traffic quality, messaging, local relevance, accessibility, trust, user journey or sales response.' },
+  { icon: 'cpu', quote: 'We need AI or automation.', body: 'Possible constraints include process design, information quality, ownership, exception handling or choosing a task that should not be automated.' },
+  { icon: 'handoff', quote: 'The team keeps dropping the ball.', body: 'Possible constraints include unclear decisions, missing resources, fragile handoffs, incentives, capacity or a process with no alternative path.' },
+  { icon: 'compass', quote: 'Our brand needs a refresh.', body: 'Possible constraints include identity, category, audience, promise, proof, experience or implementation inconsistency.' },
+  { icon: 'question', quote: 'We do not know what to do next.', body: 'That is exactly what Variety Portal is designed to route.' },
+];
+
+const offers = [
+  { icon: 'stethoscope', name: 'Problem Route Scan', price: 'Free · about 5 minutes', body: 'A short intake that classifies the symptom, urgency and likely diagnostic path.', cta: 'Start the scan', href: '/scan' },
+  { icon: 'grid', name: '216-Path Business Assessment', price: 'Scoped per engagement', body: 'A human-reviewed analysis of alternative diagnoses, constraints, interventions and providers.', cta: 'See the assessment', href: '/assessment' },
+  { icon: 'scale', name: 'Executive Decision Brief', price: 'Scoped per engagement', body: 'A deeper multi-stakeholder analysis for expensive, irreversible or politically difficult decisions.', cta: 'Discuss a decision brief', href: '/book' },
+  { icon: 'review', name: 'Routing Stewardship', price: 'Recurring', body: 'Recurring review for businesses whose constraints and priorities keep moving.', cta: 'Explore stewardship', href: '/assessment#stewardship' },
+];
+
+const misdiagnosis = ['More tools', 'More vendors', 'More activity', 'More cost', 'Conflicting recommendations', 'No clear owner', 'Little evidence that the real constraint changed'];
+
+const brief = ['Problem statement', 'Symptom versus constraint map', 'Hidden assumptions', 'Alternative diagnoses', 'Evidence and uncertainty', 'Intervention comparison', 'Cost of waiting', 'First recommended move', 'Provider criteria', 'Recommended route', '30-day evidence plan', 'Stop conditions and review date'];
+
+const faqs = [
+  { q: 'Is Variety Portal a marketplace?', a: 'Not initially. It is a diagnostic and routing service. You are not asked to browse hundreds of profiles or accept competing bids before the problem is understood.' },
+  { q: 'Do you always recommend one of your own companies?', a: 'No. Affiliated companies are recommended only when the analysis supports the fit, and the relationship is disclosed. The correct route may be an outside specialist, an internal action or no purchase.' },
+  { q: 'What does 216 paths mean?', a: 'The engine combines six interrogatives, six relational modifiers and six quantitative scales to challenge assumptions and generate alternative ways to understand or resolve a problem.' },
+  { q: 'Is the engine fully automated?', a: 'No. The engine expands the possibility space; human judgment reviews evidence, feasibility, risk and context.' },
+  { q: 'What if I already know what I need?', a: 'Use the scan to confirm the route. Clear, evidence-backed needs can move directly to the appropriate provider.' },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE.name,
+    url: SITE.url,
+    description: 'Business problem diagnosis and solution routing. Variety Portal analyzes 216 possible paths and recommends the right next move and provider.',
+    logo: 'https://designsystem.bowtiekreative.com/brand/icon-512.png',
+    slogan: SITE.tagline,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+<Base
+  title="Business Problem Diagnosis and Solution Routing"
+  description="Stop buying solutions before you know what problem you have. Variety Portal analyzes 216 possible paths and recommends the right next move and provider."
+  jsonLd={jsonLd}
+>
+  <!-- ==================== HERO ==================== -->
+  <section class="hero">
+    <Lattice intensity="low" />
+    <div class="shell shell--wide hero__inner">
+      <div class="hero__copy">
+        <p class="micro eyebrow" data-reveal>Business problem routing</p>
+        <h1 class="display" data-reveal>Stop shopping for solutions before you know what problem you have.</h1>
+
+        <div class="hero__vendors" data-reveal>
+          <p>A branding agency sees a brand problem.</p>
+          <p>A web company sees a website problem.</p>
+          <p>An automation consultant sees an automation problem.</p>
+        </div>
+
+        <p class="lede" data-reveal>
+          <strong>Variety Portal starts before the solution.</strong> We decompose the symptom, explore
+          216 alternative paths, eliminate poor fits and recommend what should happen first — and who
+          should handle it.
+        </p>
+
+        <div class="btn-row" data-reveal>
+          <a class="btn btn--primary btn--lg" href="/scan" data-event="scan_start">
+            Route my business problem
+            <Icon name="arrow" size={18} class="arrow" />
+          </a>
+          <a class="btn btn--ghost btn--lg" href="/216-path-method">Explore the 216-path method</a>
+        </div>
+
+        <ul class="hero__trust chips" data-reveal>
+          <li class="chip">Diagnostic-first</li>
+          <li class="chip">Multiple pathways</li>
+          <li class="chip">Human-reviewed recommendation</li>
+          <li class="chip">Relationships disclosed</li>
+        </ul>
+      </div>
+
+      <div class="hero__visual" data-reveal>
+        <RoutingField />
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PROBLEM ==================== -->
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <h2 class="h2">The most expensive solution is the right solution to the wrong problem.</h2>
+        <p class="lede">
+          A company with inconsistent leads may buy advertising when it actually has weak positioning.
+          It may rebuild the website when the real failure is follow-up. It may install automation when
+          nobody has repaired the process being automated.
+        </p>
+      </div>
+
+      <div class="cost" data-reveal>
+        <h3 class="micro">Misdiagnosis creates</h3>
+        <ul class="cost__list">
+          {misdiagnosis.map((item) => (
+            <li class="cost__item">
+              <Icon name="alert" size={18} />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CATEGORY ==================== -->
+  <section class="section">
+    <div class="shell">
+      <div class="split">
+        <div class="section-head" data-reveal>
+          <p class="micro eyebrow">The neutral starting point</p>
+          <h2 class="h2">You bring the symptom. We find the route.</h2>
+        </div>
+        <div class="stack-6" data-reveal>
+          <p>
+            Variety Portal does not begin with a predetermined deliverable. The analysis may route you
+            to strategy, implementation, a specialized provider, an internal decision, more evidence —
+            or no purchase yet.
+          </p>
+          <p class="note">
+            The purpose is not to generate the longest list of things you could do. It is to identify
+            the <strong>smallest sufficient intervention</strong> capable of producing useful evidence.
+          </p>
+          <a class="btn btn--primary" href="/scan">
+            Start the Problem Route Scan
+            <Icon name="arrow" size={18} class="arrow" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PROTOCOL ==================== -->
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">{SITE.mechanism}</p>
+        <h2 class="h2">Six stages between the symptom and the first move.</h2>
+      </div>
+
+      <ol class="protocol">
+        {protocol.map((step) => (
+          <li class="protocol__item" data-reveal>
+            <span class="icon-frame"><Icon name={step.icon} /></span>
+            <div>
+              <h3 class="h4">{step.title}</h3>
+              <p>{step.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <p class="protocol__more" data-reveal>
+        <a class="btn btn--ghost" href="/how-it-works">
+          See all seven stages, including review
+          <Icon name="arrow" size={18} class="arrow" />
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================== SYMPTOMS ==================== -->
+  <section class="section">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">Problems we route</p>
+        <h2 class="h2">The sentence you would use. The constraints underneath it.</h2>
+      </div>
+
+      <ul class="grid grid--3 symptoms">
+        {symptoms.map((s) => (
+          <li data-reveal>
+            <article class="card">
+              <span class="icon-frame"><Icon name={s.icon} /></span>
+              <h3 class="h4 symptoms__quote">&ldquo;{s.quote}&rdquo;</h3>
+              <p>{s.body}</p>
+            </article>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ==================== OFFERS ==================== -->
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">Engagements</p>
+        <h2 class="h2">Start small. Escalate only when the evidence says to.</h2>
+      </div>
+
+      <ul class="grid grid--4">
+        {offers.map((o) => (
+          <li data-reveal>
+            <article class="card card--link offer">
+              <span class="icon-frame"><Icon name={o.icon} /></span>
+              <h3 class="h4">{o.name}</h3>
+              <p class="micro">{o.price}</p>
+              <p class="offer__body">{o.body}</p>
+              <a class="offer__cta" href={o.href}>
+                {o.cta}
+                <Icon name="arrow" size={16} class="arrow" />
+              </a>
+            </article>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ==================== AFFILIATED ==================== -->
+  <section class="section">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">Affiliated routes</p>
+        <h2 class="h2">Specialized companies, one diagnostic front door.</h2>
+        <p class="lede">Depending on the assessment, Variety Portal may route work to a specialist in:</p>
+      </div>
+
+      <ul class="chips routes" data-reveal>
+        {PROVIDERS.map((p) => (
+          <li class="chip routes__chip">
+            <Icon name={p.icon} size={16} />
+            {p.discipline}
+          </li>
+        ))}
+      </ul>
+
+      <p class="note routes__note" data-reveal>{DISCLOSURE}</p>
+
+      <p data-reveal>
+        <a class="btn btn--ghost" href="/affiliated-companies">
+          See the full routing table
+          <Icon name="arrow" size={18} class="arrow" />
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================== SAMPLE OUTPUT ==================== -->
+  <section class="section section--surface section--hairline">
+    <div class="shell">
+      <div class="split">
+        <div class="section-head" data-reveal>
+          <p class="micro eyebrow">Sample output</p>
+          <h2 class="h2">A recommendation you can evaluate before you buy.</h2>
+          <p>The 216-Path Business Assessment can include:</p>
+        </div>
+        <div data-reveal>
+          <ul class="ticks brief">
+            {brief.map((b) => (
+              <li><Icon name="check" /><span>{b}</span></li>
+            ))}
+          </ul>
+          <p class="brief__cta">
+            <a class="btn btn--primary" href="/sample-decision-brief">
+              View a sample decision brief
+              <Icon name="arrow" size={18} class="arrow" />
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FAQ ==================== -->
+  <section class="section">
+    <div class="shell">
+      <div class="section-head" data-reveal>
+        <p class="micro eyebrow">Questions</p>
+        <h2 class="h2">Before you start the scan.</h2>
+      </div>
+      <dl class="dl" data-reveal>
+        {faqs.map((f) => (
+          <div>
+            <dt>{f.q}</dt>
+            <dd>{f.a}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- ==================== FINAL CTA ==================== -->
+  <section class="section final">
+    <Lattice intensity="high" />
+    <div class="shell final__inner">
+      <div class="center" data-reveal>
+        <h2 class="h2">You may not need more solutions. You may need the problem routed correctly.</h2>
+        <div class="btn-row final__actions">
+          <a class="btn btn--primary btn--lg" href="/scan" data-event="scan_start">
+            Route my problem
+            <Icon name="arrow" size={18} class="arrow" />
+          </a>
+          <a class="btn btn--ghost btn--lg" href="/book">Book a routing consultation</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* hero ------------------------------------------------------------------ */
+  .hero { position: relative; padding-block: var(--space-10) var(--space-10); overflow: hidden; }
+  @media (min-width: 900px) { .hero { padding-block: 96px 112px; } }
+  .hero__inner { position: relative; display: grid; gap: var(--space-9); align-items: center; }
+  @media (min-width: 1040px) { .hero__inner { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: var(--space-10); } }
+
+  .hero__copy > * + * { margin-top: var(--space-6); }
+  .hero__copy h1 { max-width: 15ch; }
+
+  .hero__vendors {
+    border-left: 2px solid var(--rp-hairline);
+    padding-left: var(--space-6);
+    display: grid;
+    gap: var(--space-1);
+    color: var(--rp-muted);
+  }
+  .hero__vendors p { max-width: 46ch; }
+
+  .hero__trust { margin-top: var(--space-7); }
+
+  /* problem --------------------------------------------------------------- */
+  .cost { margin-top: var(--space-9); }
+  .cost__list { list-style: none; padding: 0; margin-top: var(--space-5); display: grid; gap: var(--space-3); }
+  @media (min-width: 700px) { .cost__list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1040px) { .cost__list { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .cost__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    background: var(--rp-raised);
+    border: 1px solid var(--rp-hairline);
+    border-radius: var(--radius-control);
+    color: var(--rp-body);
+    font-size: 0.9375rem;
+    max-width: none;
+  }
+  .cost__item :global(svg) { color: var(--rp-warning); flex: none; }
+
+  /* shared split ----------------------------------------------------------- */
+  .split { display: grid; gap: var(--space-8); }
+  @media (min-width: 960px) { .split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-10); align-items: start; } }
+
+  /* protocol --------------------------------------------------------------- */
+  .protocol {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-9);
+    counter-reset: proto;
+    display: grid;
+    gap: var(--space-6);
+  }
+  @media (min-width: 760px) { .protocol { grid-template-columns: repeat(2, 1fr); gap: var(--space-7); } }
+  @media (min-width: 1100px) { .protocol { grid-template-columns: repeat(3, 1fr); } }
+
+  .protocol__item {
+    counter-increment: proto;
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: var(--space-5);
+    align-items: start;
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--rp-hairline);
+    position: relative;
+  }
+  .protocol__item::after {
+    content: counter(proto, decimal-leading-zero);
+    position: absolute;
+    top: var(--space-6);
+    right: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--rp-muted);
+  }
+  .protocol__item h3 { margin-bottom: var(--space-2); }
+  .protocol__item p { font-size: 0.9375rem; }
+  .protocol__more { margin-top: var(--space-9); }
+
+  /* symptoms ---------------------------------------------------------------- */
+  .symptoms { list-style: none; padding: 0; margin-top: var(--space-9); }
+  .symptoms__quote { color: var(--rp-heading); }
+
+  /* offers ------------------------------------------------------------------ */
+  .grid { list-style: none; padding: 0; margin-top: var(--space-9); }
+  .offer__body { flex: 1; font-size: 0.9375rem; }
+  .offer__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: #8AA6F2;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    min-height: 44px;
+  }
+  .offer__cta:hover { text-decoration: underline; }
+
+  /* routes ------------------------------------------------------------------ */
+  .routes { margin-top: var(--space-8); gap: var(--space-3); }
+  .routes__chip { padding: var(--space-3) var(--space-5); font-size: 0.875rem; }
+  .routes__chip :global(svg) { color: #8AA6F2; }
+  .routes__note { margin-block: var(--space-8); font-size: 0.9375rem; }
+
+  /* brief -------------------------------------------------------------------- */
+  .brief { columns: 1; }
+  @media (min-width: 560px) { .brief { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); } }
+  .brief__cta { margin-top: var(--space-8); }
+
+  /* final -------------------------------------------------------------------- */
+  .final { position: relative; overflow: hidden; border-top: 1px solid var(--rp-hairline); }
+  .final__inner { position: relative; }
+  .final h2 { max-width: 20ch; }
+  .final__actions { justify-content: center; margin-top: var(--space-8); }
+</style>
