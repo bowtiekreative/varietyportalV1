@@ -60,9 +60,14 @@ services:
     command:
       - |
         apk add --no-cache curl >/dev/null 2>&1
+        # crond does not pass the container environment to its jobs, so the
+        # secret is staged in a file the job reads at run time. $$ escapes
+        # Compose interpolation, keeping the value off the container command line.
+        printf '%s' "$$CRON_SECRET" > /run/cron_secret
+        chmod 600 /run/cron_secret
         cat > /usr/local/bin/nurture <<'SH'
         #!/bin/sh
-        curl -fsS -m 60 -X POST http://vp-web:4321/api/nurture           -H 'Content-Type: application/json'           -H "Authorization: Bearer $CRON_SECRET"
+        curl -fsS -m 60 -X POST http://vp-web:4321/api/nurture           -H 'Content-Type: application/json'           -H "Authorization: Bearer $(cat /run/cron_secret)"
         SH
         chmod +x /usr/local/bin/nurture
         echo '0 14 * * * /usr/local/bin/nurture >> /var/log/nurture.log 2>&1' > /etc/crontabs/root
